@@ -17,12 +17,12 @@ class Plant:
 
 testPlant = Plant(
     name      = 'testPlant',
-    dryValue  = 512,
+    dryValue  = 800,
     maxTemp   = 30,
     maxHumid  = 90,
     waterVol  = 600,
-    checkTime = (12,00),
-    sunrise   = (09,30),
-    sunset    = (16,30)
+    checkTime = (12,00), # use 24h time!
+    sunrise   = (07,00),
+    sunset    = (19,00)
     )
 

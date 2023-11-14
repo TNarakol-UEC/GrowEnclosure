@@ -12,7 +12,7 @@ import busio
 import digitalio
 import adafruit_ahtx0
 import adafruit_requests
-from adafruit_io.adafruit_io import IO_HTTP
+from adafruit_io.adafruit_io import IO_HTTP, AdafruitIO_RequestError
 from adafruit_seesaw.seesaw import Seesaw
 import adafruit_ina219
 import asyncio
@@ -85,6 +85,10 @@ except:
     print("UNABLE TO INITALIZE SENSORS; RELOADING")
     supervisor.reload()
 
+# onboard led as warning light (temp?)
+warnLED = digitalio.DigitalInOut(board.LED)
+warnLED.direction = digitalio.Direction.OUTPUT
+
 # Creating actuator objects
 class Actuator:
     def __init__(self, circut, button, default = False, flowRate = None, minCurrent = None):
@@ -108,6 +112,7 @@ fan = Actuator(circut = s3, button = b3)
 #########################################################
 # Network Setup
 #########################################################
+
 # Wifi Setup:
 print("connecting to Wifi network:", os.getenv('WIFI_SSID'))
 try:
@@ -119,16 +124,16 @@ try:
     requests = adafruit_requests.Session(pool, ssl.create_default_context())
 except ConnectionError:
     print('UNABLE TO CONNECT TO NETWORK; RELOADING')
-    supervisior.reload()
+    supervisor.reload()
 
 # real time clock (RTC) sync via network time protocol (NTP)
 print("synchronizing real time clock")
 try:
     ntp = adafruit_ntp.NTP(pool, tz_offset=os.getenv('TZ_OFFSET'))
+    rtc.RTC().datetime = ntp.datetime
 except OSError:
     print("RTC SYNC TIMEOUT; RELOADING")
-    supervisior.reload()
-rtc.RTC().datetime = ntp.datetime
+    supervisor.reload()
 
 # Setup Adafruit IO
 print("initalizing Adafruit IO connection to user:", os.getenv('AIO_USERNAME'))
@@ -140,14 +145,26 @@ except: #todo, find out what exeptions will actually be raised and specifically 
     print("UNABLE TO CONNECT TO ADAFRUIT IO; RELOADING")
     supervisor.reload()
 
-print("connecting to sensor data feeds")
+sn = os.getenv('ENCLOSURE_SN') # enclosure serial number
+groupKey = 'grow-enclosure-'+sn
+print("connecting to group: ",groupKey)
 try:
-    tempFeed = aio.get_feed("grow-enclosure.temperature") #todo: make a feed if one isnt found
-    rhFeed = aio.get_feed("grow-enclosure.humidity")
-    smsFeed = aio.get_feed("grow-enclosure.soil-moisture")
-except: #todo, find out what exeptions will actually be raised and specifically catch them
-    print("UNABLE TO CONNECT TO ADAFRUIT IO FEEDS; RELOADING")
-    supervisor.reload()
+    sensor_group = aio.get_group(groupKey)
+except AdafruitIO_RequestError:
+    print('GROUP NOT FOUND; CREATING NEW ONE')
+    sensor_group = aio.create_new_group('grow-enclosure-'+sn,'Grow Enclosure Sensors')
+
+print('connecting to sensor data feeds')
+try:
+    tempFeed = aio.get_feed(groupKey+'.temperature')
+    rhFeed   = aio.get_feed(groupKey+'.humidity')
+    smsFeed  = aio.get_feed(groupKey+'.soil-moisture')
+except AdafruitIO_RequestError:
+    print("FEEDS NOT FOUND, CREATING NEW ONES")
+    tempFeed = aio.create_feed_in_group(groupKey,'temperature')
+    rhFeed   = aio.create_feed_in_group(groupKey,'humidity')
+    smsFeed  = aio.create_feed_in_group(groupKey,'soil-moisture')
+
 
 #########################################################
 # Functions
@@ -183,7 +200,6 @@ async def buttonControl():
         pump.buttonInput()
         light.buttonInput()
         fan.buttonInput()
-
         await asyncio.sleep(0.5)
         continue
     return
@@ -200,12 +216,12 @@ async def climateControl(plant, rate = 6):
         rh = ths.relative_humidity
 
         # Read the soil moisture and water once per day
-        if abs(t_now-t_check) <= rateDelay:
-            print("checking soil moisture")
+        if abs(t_now - t_check) <= rateDelay:
+            print("CHECKING SOIL MOISTURE")
             moist = sms.moisture_read()
             if moist <= plant.dryValue:
-                print("soil too dry")
-                print("autowatering now")
+                print("SOIL TOO DRY")
+                autoWater(plant.waterVol, pump)
 
         # light on at 'sunrise' and off at 'sunset'
         if (t_sunrise <= t_now) and (t_sunset >= t_now):
@@ -225,6 +241,26 @@ async def climateControl(plant, rate = 6):
 
         await asyncio.sleep(rateDelay)
         continue
+    return
+
+def autoWater(V_water, P = pump):
+    t_water = int(V_water / P.flowRate) # how long to run the pump to achieve desired water vol.
+    t_start = time.time()
+    while time.time() <= (t_start+t_water):
+        P.circut.value = True
+        time.sleep(1)
+        I_pump = cs.current
+        if False: #I_pump >= P.minCurrent: #run dry detection disabled pending further testing
+            warnLED.value = True
+            print("WARNING: PUMP RUNNING DRY")
+            print("Pump Current = ",I_pump," mA")
+        else:
+            warnLED.value = False
+            print("AUTOWATERING IN PROGRESS")
+            print("Pump Current = ",I_pump," mA")
+    P.circut.value = False
+    print("AUTOWATERING COMPLETE")
+
     return
 
 def hhmm2unixToday(t):
@@ -248,6 +284,8 @@ def hhmm2unixToday(t):
             t_unix.tm_isdst,
     ))
     return t_unix
+
+
 
 #########################################################
 # Main loop
