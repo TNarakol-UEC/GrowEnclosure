@@ -5,7 +5,7 @@
 #NOTES: This file define the plant class as an input for main.py
 ########################################
 
-class Plant:
+class PlantDef:
     def __init__(self, name, dryValue, maxTemp, maxHumid, waterVol, checkTime, sunrise, sunset):
         self.name       = name # string of plants name
         self.dryValue   = dryValue # dry threashold for autowatering to kick in
@@ -18,13 +18,13 @@ class Plant:
 
 #########################################################
 
-testPlant = Plant(
+testPlant = PlantDef(
     name      = 'testPlant',
     dryValue  = 800,
     maxTemp   = 30,
     maxHumid  = 90,
     waterVol  = 600,
     checkTime = (12,00), # use 24h time!
-    sunrise   = (07,00),
+    sunrise   = (7,00), #Cannot use 07 - leading zeroes not permitted
     sunset    = (19,00)
     )

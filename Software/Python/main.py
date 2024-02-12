@@ -10,6 +10,7 @@
 import asyncio
 import time
 import json
+from Adafruit_IO import Client, RequestError, Group
 
 #All these are part of Blinka
 #import os #Not used anymore, os level ops above the code
@@ -24,34 +25,35 @@ import digitalio
 
 #Library requiring additional installation other than standard Blinka install
 import adafruit_ahtx0
-import adafruit_requests
-from adafruit_io.adafruit_io import IO_HTTP, AdafruitIO_RequestError
+#import adafruit_requests /Not used - used main Python AdaIO
+#from adafruit_io.adafruit_io import IO_HTTP, AdafruitIO_RequestError /Not used - used main Python AdaIO
 from adafruit_seesaw.seesaw import Seesaw
 import adafruit_ina219
 #import adafruit_ntp #ntp handled OS level
 
 #Functions/Class from other file
-from addclass import Plant #import plant as a class from file addclass
+from addclass import testPlant #import testPlant as specific instance of the Plantdef class from addclass
 
 #Configure global parameters for various options in the code
 rateLimit = 30 # Adafruit IO updates per minute
-plant = plants.testPlant # which plant are we growing
+plant = testPlant # which plant are we growing
 
 #Setup pinouts for hardware used
 #Current: Raspberry Pi 3 A+ with BCRobotics Irrigation Hat V2
+#For Blinka, the pins are defined as DXX not GPXX
 pins = {
-    'S1' : board.GP13, #This is MOSFET control pin 1 (System 1). Other S pin controls n MOSFET.
-    'S2' : board.GP16, #GP Corresponds to GPIO pins
-    'S3' : board.GP19,
-    'S4' : board.GP20,
-    'S5' : board.GP26, #This is button input pin 1. Other B pin receive n button command
-    'B1' : board.GP12,
-    'B2' : board.GP6,
-    'B3' : board.GP5,
-    'B4' : board.GP25,
+    'S1' : board.D13, #This is MOSFET control pin 1 (System 1). Other S pin controls n MOSFET.
+    'S2' : board.D16, #GP Corresponds to GPIO pins
+    'S3' : board.D19,
+    'S4' : board.D20,
+    'S5' : board.D26, #This is button input pin 1. Other B pin receive n button command
+    'B1' : board.D12,
+    'B2' : board.D6,
+    'B3' : board.D5,
+    'B4' : board.D25,
     #'B5' : board.GP15, #Comment out any B5 or GP15 as there's currently only 4 analog control
-    'QWIIC_SCL' : board.GP2, #Define I2C pin CLOCK
-    'QWIIC_SDA' : board.GP3 #Define I2C pin DATA
+    'QWIIC_SCL' : board.SCL, #Define I2C pin CLOCK, use board.SCL in pi
+    'QWIIC_SDA' : board.SDA #Define I2C pin DATA, use board.SDA in pi
     }
 
 #Setup Actuator circuts
@@ -91,11 +93,12 @@ try:
     cs = adafruit_ina219.INA219(qwiic) # Pump Current Sensor
 except:
     print("UNABLE TO INITALIZE SENSORS; RELOADING")
-    raise RuntimeError('SENSOR ERROR') #The code will reboot by the forced restart systemd flag after error is raised and the code exited
+    raise RuntimeError('SENSOR ERROR')
+    #The code will reboot by the forced restart systemd flag after error is raised and the code exited
 
-# onboard led as warning light (temp?)
-warnLED = digitalio.DigitalInOut(board.LED)
-warnLED.direction = digitalio.Direction.OUTPUT
+# onboard led as warning light (temp?) // Pi 3 A+ have no defined LED using board module
+#warnLED = digitalio.DigitalInOut(board.LED)
+#warnLED.direction = digitalio.Direction.OUTPUT
 
 # Creating actuator objects
 class Actuator:
@@ -144,35 +147,39 @@ fan = Actuator(circut = s3, button = b3)
 with open('datastore.json') as json_file:
     extdata = json.load(json_file)
 
-# Setup Adafruit IO
+# Setup Adafruit IO (Python ed.)
 print("initalizing Adafruit IO connection to user:", extdata["Adafruit_IO"][0]["AIO_USERNAME"])
 try:
     aio_username = extdata["Adafruit_IO"][0]["AIO_USERNAME"] #This returns username as setup in our json file.
     aio_key = extdata["Adafruit_IO"][0]["AIO_KEY"]
-    aio = IO_HTTP(aio_username, aio_key, requests)
+    aio = Client(aio_username, aio_key)
 except: #todo, find out what exeptions will actually be raised and specifically catch them
     print("UNABLE TO CONNECT TO ADAFRUIT IO; RELOADING")
     raise RuntimeError('ADA_IO_CONN_ERROR')
 
-sn = extdata["Enclosure"][0]["Serial"] # enclosure serial number
-groupKey = 'grow-enclosure-'+sn
+#Define adafruit group name
+groupKey = extdata["Enclosure"][0]["Serial"] # enclosure serial number: GroBot-xxx-xxx
 print("connecting to group: ",groupKey)
 try:
-    sensor_group = aio.get_group(groupKey)
-except AdafruitIO_RequestError:
-    print('GROUP NOT FOUND; CREATING NEW ONE')
-    sensor_group = aio.create_new_group('grow-enclosure-'+sn,'Grow Enclosure Sensors')
+    sensor_group = aio.groups(groupKey)
+except RequestError:
+    print('GROUP NOT FOUND; Please create on with name exactly matching Serial in datastore.json. Format should be: grobot-xxx-xxx')
+    raise RuntimeError('ADA_IO_GROUP_ERROR')
+    #sensor_group = aio.create_group('grow-enclosure-'+sn,'Grow Enclosure Sensors')
+    #Don't like auto creation of new 
 
 print('connecting to sensor data feeds')
-try:
-    tempFeed = aio.get_feed(groupKey+'.temperature')
-    rhFeed   = aio.get_feed(groupKey+'.humidity')
-    smsFeed  = aio.get_feed(groupKey+'.soil-moisture')
-except AdafruitIO_RequestError:
-    print("FEEDS NOT FOUND, CREATING NEW ONES")
-    tempFeed = aio.create_feed_in_group(groupKey,'temperature')
-    rhFeed   = aio.create_feed_in_group(groupKey,'humidity')
-    smsFeed  = aio.create_feed_in_group(groupKey,'soil-moisture')
+try: #Each sensor should be defined as groupkey.sensor eg. GroBot-xxx-xxx.temperature
+    tempFeed = aio.feeds(groupKey+'.temperature')
+    rhFeed   = aio.feeds(groupKey+'.humidity')
+    smsFeed  = aio.feeds(groupKey+'.soil-moisture')
+except RequestError:
+    print("FEEDS NOT FOUND. Please create proper data feed exactly named Temperature, Humidity, Soil Moisture")
+    raise RuntimeError('ADA_IO_SENSOR_FEED_ERROR')
+    #tempFeed = aio.create_data(groupKey,'temperature')
+    #rhFeed   = aio.create_data(groupKey,'humidity')
+    #smsFeed  = aio.create_data(groupKey,'soil-moisture')
+    #do not like code making feeds by itself.
 
 #Main Functions
 async def updateSensorData(updateRate = 1):
@@ -190,9 +197,9 @@ async def updateSensorData(updateRate = 1):
         print("Time:",t[3:6],"Temp(C)=", temp, "%RH=", rh, "Soil Moisture=", moist)
 
         # send data to dashboard
-        aio.send_data(tempFeed["key"], temp)
-        aio.send_data(rhFeed["key"], rh)
-        aio.send_data(smsFeed["key"], moist)
+        aio.send_data(tempFeed.key, temp)
+        aio.send_data(rhFeed.key, rh)
+        aio.send_data(smsFeed.key, moist)
 
         await asyncio.sleep(updateDelay)
 
