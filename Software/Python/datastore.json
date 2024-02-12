@@ -1,0 +1,13 @@
+{
+    "Adafruit_IO" : [
+        {
+            "AIO_USERNAME" : "username",
+            "AIO_KEY" : "key"
+        }
+    ],
+    "Enclosure" : [
+        {
+            "Serial" : "xxx-xxx"
+        }
+    ]
+}

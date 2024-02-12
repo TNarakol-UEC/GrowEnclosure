@@ -8,18 +8,19 @@
 #import important library
 #Standard python library
 import asyncio
+import time
+import json
 
 #All these are part of Blinka
-import os
-import supervisor
-import time
-import wifi
+#import os #Not used anymore, os level ops above the code
+#import supervisor #Not used anymore, code do not have supervisor reload privilege unlike microcontroller
+#import wifi Wifi not needed anymore
 import ssl
-import socketpool
+#import socketpool #socketpool not needed
 import board
 import busio
 import digitalio
-import rtc
+#import rtc #Pi 3A+ do not use RTC as OS handles date time ops
 
 #Library requiring additional installation other than standard Blinka install
 import adafruit_ahtx0
@@ -27,7 +28,7 @@ import adafruit_requests
 from adafruit_io.adafruit_io import IO_HTTP, AdafruitIO_RequestError
 from adafruit_seesaw.seesaw import Seesaw
 import adafruit_ina219
-import adafruit_ntp
+#import adafruit_ntp #ntp handled OS level
 
 #Functions/Class from other file
 from addclass import Plant #import plant as a class from file addclass
@@ -90,7 +91,7 @@ try:
     cs = adafruit_ina219.INA219(qwiic) # Pump Current Sensor
 except:
     print("UNABLE TO INITALIZE SENSORS; RELOADING")
-    supervisor.reload()
+    raise RuntimeError('SENSOR ERROR') #The code will reboot by the forced restart systemd flag after error is raised and the code exited
 
 # onboard led as warning light (temp?)
 warnLED = digitalio.DigitalInOut(board.LED)
@@ -130,26 +131,30 @@ fan = Actuator(circut = s3, button = b3)
 #    print('UNABLE TO CONNECT TO NETWORK; RELOADING')
 #    supervisor.reload()
 
-# real time clock (RTC) sync via network time protocol (NTP)
-print("synchronizing real time clock")
-try:
-    ntp = adafruit_ntp.NTP(pool, tz_offset=os.getenv('TZ_OFFSET'))
-    rtc.RTC().datetime = ntp.datetime
-except OSError:
-    print("RTC SYNC TIMEOUT; RELOADING")
-    supervisor.reload()
+# DEPRECATED, NO NEED FOR RTC AS OS HANDLES IT; real time clock (RTC) sync via network time protocol (NTP)
+#print("synchronizing real time clock")
+#try:
+#    ntp = adafruit_ntp.NTP(pool, tz_offset=os.getenv('TZ_OFFSET'))
+#    rtc.RTC().datetime = ntp.datetime
+#except OSError:
+#    print("RTC SYNC TIMEOUT; RELOADING")
+#    supervisor.reload()
+
+#Open file with 'with' statement as json_file. This autoclose file. Load data as a dict into extdata
+with open('datastore.json') as json_file:
+    extdata = json.load(json_file)
 
 # Setup Adafruit IO
-print("initalizing Adafruit IO connection to user:", os.getenv('AIO_USERNAME'))
+print("initalizing Adafruit IO connection to user:", extdata["Adafruit_IO"][0]["AIO_USERNAME"])
 try:
-    aio_username = os.getenv('AIO_USERNAME')
-    aio_key = os.getenv('AIO_KEY')
+    aio_username = extdata["Adafruit_IO"][0]["AIO_USERNAME"] #This returns username as setup in our json file.
+    aio_key = extdata["Adafruit_IO"][0]["AIO_KEY"]
     aio = IO_HTTP(aio_username, aio_key, requests)
 except: #todo, find out what exeptions will actually be raised and specifically catch them
     print("UNABLE TO CONNECT TO ADAFRUIT IO; RELOADING")
-    supervisor.reload()
+    raise RuntimeError('ADA_IO_CONN_ERROR')
 
-sn = os.getenv('ENCLOSURE_SN') # enclosure serial number
+sn = extdata["Enclosure"][0]["Serial"] # enclosure serial number
 groupKey = 'grow-enclosure-'+sn
 print("connecting to group: ",groupKey)
 try:
@@ -304,4 +309,11 @@ try:
     asyncio.run(main())
 except MemoryError:
     print("MEMORY ERROR; RELOADING")
-    supervisor.reload()
+    raise RuntimeError('MEMORY_ERROR')
+except:
+    print("UNHANDLED EXCEPTION; RELOADING")
+    for s in [s1, s2, s3, s4, s5]:
+        s.direction = digitalio.Direction.OUTPUT
+        s.drive_mode = digitalio.DriveMode.PUSH_PULL
+        s.value = False
+    raise RuntimeError('PC_LOAD_LETTER')

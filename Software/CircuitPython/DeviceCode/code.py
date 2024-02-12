@@ -310,5 +310,11 @@ try:
 except MemoryError:
     print("MEMORY ERROR; RELOADING")
     supervisor.reload()
-
+except:
+    print("UNHANDLED EXCEPTION; RELOADING")
+    for s in [s1, s2, s3, s4, s5]:
+        s.direction = digitalio.Direction.OUTPUT
+        s.drive_mode = digitalio.DriveMode.PUSH_PULL
+        s.value = False
+    supervisor.reload()
 
