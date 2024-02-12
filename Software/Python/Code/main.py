@@ -2,6 +2,7 @@
 #Ulnooweg Education Centre - All rights reserved
 #Contact: ulnoowegeducation.ca
 
+#V0.6
 #NOTES: THIS VERSION IS USING IMPORTED BLINKA LIBRARIES. NATIVE LIBRARIES WILL BE USED IN NEXT REFACTOR.
 ########################################
 
@@ -10,26 +11,19 @@
 import asyncio
 import time
 import json
+
+#Additional Python Library
 from Adafruit_IO import Client, RequestError, Group
 
 #All these are part of Blinka
-#import os #Not used anymore, os level ops above the code
-#import supervisor #Not used anymore, code do not have supervisor reload privilege unlike microcontroller
-#import wifi Wifi not needed anymore
-import ssl
-#import socketpool #socketpool not needed
 import board
 import busio
 import digitalio
-#import rtc #Pi 3A+ do not use RTC as OS handles date time ops
 
 #Library requiring additional installation other than standard Blinka install
 import adafruit_ahtx0
-#import adafruit_requests /Not used - used main Python AdaIO
-#from adafruit_io.adafruit_io import IO_HTTP, AdafruitIO_RequestError /Not used - used main Python AdaIO
 from adafruit_seesaw.seesaw import Seesaw
 import adafruit_ina219
-#import adafruit_ntp #ntp handled OS level
 
 #Functions/Class from other file
 from addclass import testPlant #import testPlant as specific instance of the Plantdef class from addclass
@@ -40,14 +34,14 @@ plant = testPlant # which plant are we growing
 
 #Setup pinouts for hardware used
 #Current: Raspberry Pi 3 A+ with BCRobotics Irrigation Hat V2
-#For Blinka, the pins are defined as DXX not GPXX
+#For Blinka, the pins are defined as DXX
 pins = {
     'S1' : board.D13, #This is MOSFET control pin 1 (System 1). Other S pin controls n MOSFET.
-    'S2' : board.D16, #GP Corresponds to GPIO pins
+    'S2' : board.D16, #DXX Corresponds to GPIO pins XX
     'S3' : board.D19,
     'S4' : board.D20,
-    'S5' : board.D26, #This is button input pin 1. Other B pin receive n button command
-    'B1' : board.D12,
+    'S5' : board.D26, 
+    'B1' : board.D12, #This is button input pin 1. Other B pin receive n button command
     'B2' : board.D6,
     'B3' : board.D5,
     'B4' : board.D25,
@@ -96,10 +90,6 @@ except:
     raise RuntimeError('SENSOR ERROR')
     #The code will reboot by the forced restart systemd flag after error is raised and the code exited
 
-# onboard led as warning light (temp?) // Pi 3 A+ have no defined LED using board module
-#warnLED = digitalio.DigitalInOut(board.LED)
-#warnLED.direction = digitalio.Direction.OUTPUT
-
 # Creating actuator objects
 class Actuator:
     def __init__(self, circut, button, default = False, flowRate = None, minCurrent = None):
@@ -119,29 +109,6 @@ class Actuator:
 pump = Actuator(circut = s1, button = b1, flowRate = 66.7, minCurrent = 600)
 light = Actuator(circut = s2, button = b2)
 fan = Actuator(circut = s3, button = b3)
-
-#Wifi setup is not needed for Pi 3A+ as this is handled OS level
-# Wifi Setup:
-#print("connecting to Wifi network:", os.getenv('WIFI_SSID'))
-#try:
-#    wifi.radio.connect(  # todo, make this a try / exept block
-#        os.getenv('WIFI_SSID'),
-#        os.getenv('WIFI_PASSWORD')
-#        )
-#    pool = socketpool.SocketPool(wifi.radio)
-#    requests = adafruit_requests.Session(pool, ssl.create_default_context())
-#except ConnectionError:
-#    print('UNABLE TO CONNECT TO NETWORK; RELOADING')
-#    supervisor.reload()
-
-# DEPRECATED, NO NEED FOR RTC AS OS HANDLES IT; real time clock (RTC) sync via network time protocol (NTP)
-#print("synchronizing real time clock")
-#try:
-#    ntp = adafruit_ntp.NTP(pool, tz_offset=os.getenv('TZ_OFFSET'))
-#    rtc.RTC().datetime = ntp.datetime
-#except OSError:
-#    print("RTC SYNC TIMEOUT; RELOADING")
-#    supervisor.reload()
 
 #Open file with 'with' statement as json_file. This autoclose file. Load data as a dict into extdata
 with open('datastore.json') as json_file:
@@ -166,7 +133,7 @@ except RequestError:
     print('GROUP NOT FOUND; Please create on with name exactly matching Serial in datastore.json. Format should be: grobot-xxx-xxx')
     raise RuntimeError('ADA_IO_GROUP_ERROR')
     #sensor_group = aio.create_group('grow-enclosure-'+sn,'Grow Enclosure Sensors')
-    #Don't like auto creation of new 
+    #Don't like auto creation of new groups, instead return error to go and make a group
 
 print('connecting to sensor data feeds')
 try: #Each sensor should be defined as groupkey.sensor eg. GroBot-xxx-xxx.temperature
@@ -174,12 +141,12 @@ try: #Each sensor should be defined as groupkey.sensor eg. GroBot-xxx-xxx.temper
     rhFeed   = aio.feeds(groupKey+'.humidity')
     smsFeed  = aio.feeds(groupKey+'.soil-moisture')
 except RequestError:
-    print("FEEDS NOT FOUND. Please create proper data feed exactly named Temperature, Humidity, Soil Moisture")
+    print("FEEDS NOT FOUND. Please create 3 data feed exactly named Temperature, Humidity, and Soil Moisture")
     raise RuntimeError('ADA_IO_SENSOR_FEED_ERROR')
     #tempFeed = aio.create_data(groupKey,'temperature')
     #rhFeed   = aio.create_data(groupKey,'humidity')
     #smsFeed  = aio.create_data(groupKey,'soil-moisture')
-    #do not like code making feeds by itself.
+    #do not like code making feeds by itself instead return error to go and make feeds
 
 #Main Functions
 async def updateSensorData(updateRate = 1):
