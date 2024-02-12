@@ -40,7 +40,8 @@ pins = {
     'S2' : board.D16, #DXX Corresponds to GPIO pins XX
     'S3' : board.D19,
     'S4' : board.D20,
-    'S5' : board.D26, 
+    'S5' : board.D26,
+    'S6' : board.D21,
     'B1' : board.D12, #This is button input pin 1. Other B pin receive n button command
     'B2' : board.D6,
     'B3' : board.D5,
@@ -58,6 +59,7 @@ s2 = digitalio.DigitalInOut(pins['S2'])
 s3 = digitalio.DigitalInOut(pins['S3'])
 s4 = digitalio.DigitalInOut(pins['S4'])
 s5 = digitalio.DigitalInOut(pins['S5'])
+s6 = digitalio.DigitalInOut(pins['S6'])
 
 for s in [s1, s2, s3, s4, s5]:
     s.direction = digitalio.Direction.OUTPUT

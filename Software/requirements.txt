@@ -1,12 +1,1 @@
-Modules from Adafruit CircutPython Bundle:
-  adafruit_bus_device
-  adafruit_io
-  adafruit_minimqtt
-  adafruit_register
-  adafruit_seesaw
-  asyncio
-  adafruit_ahtx0
-  adafruit_ina219
-  adafruit_ntp
-  adafruit_requests
-  adafruit_ticks
+#See internal docs
