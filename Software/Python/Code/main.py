@@ -113,7 +113,7 @@ light = Actuator(circut = s2, button = b2)
 fan = Actuator(circut = s3, button = b3)
 
 #Open file with 'with' statement as json_file. This autoclose file. Load data as a dict into extdata
-with open('datastore.json') as json_file:
+with open('/home/grobot/code/datastore.json') as json_file:
     extdata = json.load(json_file)
 
 # Setup Adafruit IO (Python ed.)
