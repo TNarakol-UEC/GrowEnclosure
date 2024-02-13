@@ -1,0 +1,11 @@
+[Unit]
+Description=Grobot main system file
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+ExecStart=/home/grobot/adapi/bin/python /home/grobot/code/main.py
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
