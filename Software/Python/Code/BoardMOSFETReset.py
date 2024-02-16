@@ -2,8 +2,7 @@
 #Ulnooweg Education Centre - All rights reserved
 #Contact: ulnoowegeducation.ca
 
-#V0.6
-#NOTES: THIS VERSION IS USING IMPORTED BLINKA LIBRARIES. NATIVE LIBRARIES WILL BE USED IN NEXT REFACTOR.
+#V0.7
 #This code always run with highest priority on boot. Force close all mosfets gates from unknown floats.
 ########################################
 

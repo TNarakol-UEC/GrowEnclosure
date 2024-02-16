@@ -2,8 +2,7 @@
 #Ulnooweg Education Centre - All rights reserved
 #Contact: ulnoowegeducation.ca
 
-#V0.6
-#NOTES: THIS VERSION IS USING IMPORTED BLINKA LIBRARIES. NATIVE LIBRARIES WILL BE USED IN NEXT REFACTOR.
+#V0.7
 ########################################
 
 #import important library
@@ -14,6 +13,7 @@ import json
 
 #Additional Python Library
 from Adafruit_IO import Client, RequestError, Group
+from lcddispfunc import lcddisplay
 
 #All these are part of Blinka
 import board
@@ -53,6 +53,7 @@ pins = {
 
 #Setup Actuator circuts
 print("initalizing actuator circuts")
+lcddisplay('SETUP', 'ACTUATE CIR INIT', 'b')
 
 s1 = digitalio.DigitalInOut(pins['S1'])
 s2 = digitalio.DigitalInOut(pins['S2'])
@@ -79,16 +80,19 @@ for b in [b1, b2, b3, b4]: #because of the way these are defined, true = unpress
 
 # Setup QWIIC Bus
 print("initalizing I2C bus")
+lcddisplay('SETUP', 'I2C BUS INIT', 'b')
 qwiic = busio.I2C(scl=pins['QWIIC_SCL'], sda=pins['QWIIC_SDA'])
 
 # Setup Sensors
 print("initalizing sensors")
+lcddisplay('SETUP', 'SENSORS INIT', 'b')
 try:
     ths = adafruit_ahtx0.AHTx0(qwiic) # Temperature & Humidity Sensor
     sms = Seesaw(qwiic, addr=0x36) # Soil Moisture Sensor
     cs = adafruit_ina219.INA219(qwiic) # Pump Current Sensor
 except:
     print("UNABLE TO INITALIZE SENSORS; RELOADING")
+    lcddisplay('ERROR', 'SENSOR INIT FAIL', 'r')
     raise RuntimeError('SENSOR ERROR')
     #The code will reboot by the forced restart systemd flag after error is raised and the code exited
 
@@ -118,12 +122,14 @@ with open('/home/grobot/code/datastore.json') as json_file:
 
 # Setup Adafruit IO (Python ed.)
 print("initalizing Adafruit IO connection to user:", extdata["Adafruit_IO"][0]["AIO_USERNAME"])
+lcddisplay('SETUP', 'ADA_IO CONN INIT', 'b')
 try:
     aio_username = extdata["Adafruit_IO"][0]["AIO_USERNAME"] #This returns username as setup in our json file.
     aio_key = extdata["Adafruit_IO"][0]["AIO_KEY"]
     aio = Client(aio_username, aio_key)
 except: #todo, find out what exeptions will actually be raised and specifically catch them
     print("UNABLE TO CONNECT TO ADAFRUIT IO; RELOADING")
+    lcddisplay('ERROR', 'ADA_IO CONN FAIL', 'r')
     raise RuntimeError('ADA_IO_CONN_ERROR')
 
 #Define adafruit group name
@@ -133,6 +139,7 @@ try:
     sensor_group = aio.groups(groupKey)
 except RequestError:
     print('GROUP NOT FOUND; Please create on with name exactly matching Serial in datastore.json. Format should be: grobot-xxx-xxx')
+    lcddisplay('ERROR', 'ADA_IO GROUP ERR', 'r')
     raise RuntimeError('ADA_IO_GROUP_ERROR')
     #sensor_group = aio.create_group('grow-enclosure-'+sn,'Grow Enclosure Sensors')
     #Don't like auto creation of new groups, instead return error to go and make a group
@@ -144,6 +151,7 @@ try: #Each sensor should be defined as groupkey.sensor eg. GroBot-xxx-xxx.temper
     smsFeed  = aio.feeds(groupKey+'.soil-moisture')
 except RequestError:
     print("FEEDS NOT FOUND. Please create 3 data feed exactly named Temperature, Humidity, and Soil Moisture")
+    lcddisplay('ERROR', 'ADA_IO FEED ERR', 'r')
     raise RuntimeError('ADA_IO_SENSOR_FEED_ERROR')
     #tempFeed = aio.create_data(groupKey,'temperature')
     #rhFeed   = aio.create_data(groupKey,'humidity')
@@ -164,6 +172,9 @@ async def updateSensorData(updateRate = 1):
 
         t = time.localtime(time.time())
         print("Time:",t[3:6],"Temp(C)=", temp, "%RH=", rh, "Soil Moisture=", moist)
+        normal_sys_time = str(time.strftime('%H:%M', t))
+        normal_sys_string = str('T:')+str(int(temp))+str(' RH:')+str(int(rh))+str(' M:')+str(int(moist))
+        lcddisplay('NORMAL UP='+normal_sys_time, normal_sys_string, 'g')
 
         # send data to dashboard
         aio.send_data(tempFeed.key, temp)
@@ -199,9 +210,11 @@ async def climateControl(plant, rate = 6):
         # Read the soil moisture and water once per day
         if abs(t_now - t_check) <= rateDelay:
             print("CHECKING SOIL MOISTURE")
+            lcddisplay('CHECKING', 'SOIL MOIST CHECK', 'b')
             moist = sms.moisture_read()
             if moist <= plant.dryValue:
                 print("SOIL TOO DRY")
+                lcddisplay('CHECKING', 'SOIL IS DRY', 'b')
                 autoWater(plant.waterVol, pump)
 
         # light on at 'sunrise' and off at 'sunset'
@@ -235,12 +248,15 @@ def autoWater(V_water, P = pump):
             warnLED.value = True
             print("WARNING: PUMP RUNNING DRY")
             print("Pump Current = ",I_pump," mA")
+            lcddisplay('WARNING', 'RESERVIOR DRY', 'r')
         else:
             warnLED.value = False
             print("AUTOWATERING IN PROGRESS")
             print("Pump Current = ",I_pump," mA")
+            lcddisplay('NORMAL', 'WATERING', 'g')
     P.circut.value = False
     print("AUTOWATERING COMPLETE")
+    lcddisplay('NORMAL', 'WATERING DONE', 'g')
 
     return
 
@@ -268,6 +284,7 @@ def hhmm2unixToday(t):
 
 #Main loop
 print("setup complete")
+lcddisplay('SETUP', 'SETUP DONE', 'b')
 
 async def main():
 
@@ -285,9 +302,11 @@ try:
     asyncio.run(main())
 except MemoryError:
     print("MEMORY ERROR; RELOADING")
+    lcddisplay('ERROR', 'MEM ERR', 'r')
     raise RuntimeError('MEMORY_ERROR')
 except:
     print("UNHANDLED EXCEPTION; RELOADING")
+    lcddisplay('ERROR', 'PC LOAD LETTER', 'r')
     for s in [s1, s2, s3, s4, s5]:
         s.direction = digitalio.Direction.OUTPUT
         s.drive_mode = digitalio.DriveMode.PUSH_PULL
