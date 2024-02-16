@@ -61,7 +61,7 @@ s4 = digitalio.DigitalInOut(pins['S4'])
 s5 = digitalio.DigitalInOut(pins['S5'])
 s6 = digitalio.DigitalInOut(pins['S6'])
 
-for s in [s1, s2, s3, s4, s5]:
+for s in [s1, s2, s3, s4, s5, s6]:
     s.direction = digitalio.Direction.OUTPUT
     s.drive_mode = digitalio.DriveMode.PUSH_PULL
     s.value = False
