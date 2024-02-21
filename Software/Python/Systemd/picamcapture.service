@@ -1,0 +1,12 @@
+[Unit]
+Description=Grobot camera capture service
+Wants=grobot.service
+After=grobot.service
+
+[Service]
+ExecStart=/home/grobot/adapi/bin/python /home/grobot/code/cameracode.py
+Restart=always
+RestartSec=2s
+
+[Install]
+WantedBy=multi-user.target
