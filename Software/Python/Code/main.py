@@ -174,7 +174,7 @@ async def updateSensorData(updateRate = 1):
         print("Time:",t[3:6],"Temp(C)=", temp, "%RH=", rh, "Soil Moisture=", moist)
         normal_sys_time = str(time.strftime('%H:%M', t))
         normal_sys_string = str('T:')+str(int(temp))+str(' RH:')+str(int(rh))+str(' M:')+str(int(moist))
-        lcddisplay('NORMAL UP='+normal_sys_time, normal_sys_string, 'g')
+        lcddisplay('NORMAL Clk '+normal_sys_time, normal_sys_string, 'g')
 
         # send data to dashboard
         aio.send_data(tempFeed.key, temp)
