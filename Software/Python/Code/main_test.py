@@ -24,6 +24,7 @@ import digitalio
 import adafruit_ahtx0
 from adafruit_seesaw.seesaw import Seesaw
 import adafruit_ina219
+import adafruit_character_lcd.character_lcd_rgb_i2c as character_lcd
 
 #Functions/Class from other file
 from addclass import testPlant #import testPlant as specific instance of the Plantdef class from addclass
@@ -34,6 +35,12 @@ plant = testPlant # which plant are we growing
 
 #Setup pinouts for hardware used
 #Current: Raspberry Pi 3 A+ with BCRobotics Irrigation Hat V2
+#LCD Definitions
+lcd_columns = 16
+lcd_rows = 2
+i2c = busio.I2C(board.SCL, board.SDA)
+lcd = character_lcd.Character_LCD_RGB_I2C(i2c, lcd_columns, lcd_rows)
+
 #For Blinka, the pins are defined as DXX
 pins = {
     'S1' : board.D13, #This is MOSFET control pin 1 (System 1). Other S pin controls n MOSFET.
@@ -42,11 +49,11 @@ pins = {
     'S4' : board.D20,
     'S5' : board.D26,
     'S6' : board.D21,
-    'B1' : board.D12, #This is button input pin 1. Other B pin receive n button command
-    'B2' : board.D6,
-    'B3' : board.D5,
-    'B4' : board.D25,
-    #'B5' : board.GP15, #Comment out any B5 or GP15 as there's currently only 4 analog control
+    'B1' : lcd.up_button, #This is button input using LCD up button handled via adafruit i2c lcd lib
+    'B2' : lcd.down_button,
+    'B3' : lcd.left_button,
+    'B4' : lcd.right_button,
+    'B5' : lcd.select_button,
     'QWIIC_SCL' : board.SCL, #Define I2C pin CLOCK, use board.SCL in pi
     'QWIIC_SDA' : board.SDA #Define I2C pin DATA, use board.SDA in pi
     }
@@ -66,17 +73,6 @@ for s in [s1, s2, s3, s4, s5, s6]:
     s.direction = digitalio.Direction.OUTPUT
     s.drive_mode = digitalio.DriveMode.PUSH_PULL
     s.value = False
-
-# Front Panel Buttons
-b1 = digitalio.DigitalInOut(pins['B1'])
-b2 = digitalio.DigitalInOut(pins['B2'])
-b3 = digitalio.DigitalInOut(pins['B3'])
-b4 = digitalio.DigitalInOut(pins['B4'])
-#b5 = digitalio.DigitalInOut(pins['B5'])
-
-for b in [b1, b2, b3, b4]: #because of the way these are defined, true = unpressed; b5 removed
-    b.direction = digitalio.Direction.INPUT
-    b.pull = digitalio.Pull.UP
 
 # Setup QWIIC Bus
 print("initalizing I2C bus")
@@ -98,23 +94,30 @@ except:
 
 # Creating actuator objects
 class Actuator:
-    def __init__(self, circut, button, default = False, flowRate = None, minCurrent = None):
+    def __init__(self, circut, button_type, default = False, flowRate = None, minCurrent = None):
         self.circut     = circut
-        self.button     = button
+        self.button_type = button_type
         self.default    = default
         self.flowRate   = flowRate
         self.minCurrent = minCurrent
 
     def buttonInput(self):
-        if self.button.value == False:
-            self.circut.value = True
+        if self.button_type == 'up':
+            if lcd.up_button == True:
+                self.circut.value = True
+        elif self.button_type == 'down':
+            if lcd.down_button == True:
+                self.circut.value = True
+        elif self.button_type == 'left':
+            if lcd.left_button == True:
+                self.circut.value = True
         else:
             self.circut.value = self.default
         return
 
-pump = Actuator(circut = s1, button = b1, flowRate = 66.7, minCurrent = 600)
-light = Actuator(circut = s2, button = b2)
-fan = Actuator(circut = s3, button = b3)
+pump = Actuator(circut = s1, button_type = 'up', flowRate = 66.7, minCurrent = 600)
+light = Actuator(circut = s2, button_type = 'down')
+fan = Actuator(circut = s3, button_type = 'left')
 
 #Open file with 'with' statement as json_file. This autoclose file. Load data as a dict into extdata
 with open('/home/grobot/code/datastore.json') as json_file:
@@ -216,7 +219,7 @@ async def climateControl(plant, rate = 6):
                 print("SOIL TOO DRY")
                 lcddisplay('CHECKING', 'SOIL IS DRY', 'b')
                 autoWater(plant.waterVol, pump)
-        else: #This turns pump off if it is not time to check yet as it should be off otherwise, also important as it turns off pump if button press turns it on.
+        else:
             pump.circut.value = False
             pump.default = False
 
