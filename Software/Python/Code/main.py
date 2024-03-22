@@ -192,6 +192,11 @@ async def updateSensorData(updateRate = 1):
 async def buttonControl():
 
     while True:
+        #special code to force a reset if screen goes crazy
+        if lcd.select_button == True:
+            raise RuntimeError('SCREEN_SELF_RESET')
+        else:
+            pass
         pump.buttonInput()
         light.buttonInput()
         fan.buttonInput()
