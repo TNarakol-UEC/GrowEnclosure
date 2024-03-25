@@ -256,12 +256,12 @@ def autoWater(V_water, P = pump):
         time.sleep(1)
         I_pump = cs.current
         if False: #I_pump >= P.minCurrent: #run dry detection disabled pending further testing
-            warnLED.value = True
+            #warnLED.value = True
             print("WARNING: PUMP RUNNING DRY")
             print("Pump Current = ",I_pump," mA")
             lcddisplay('WARNING', 'RESERVIOR DRY', 'r')
         else:
-            warnLED.value = False
+            #warnLED.value = False
             print("AUTOWATERING IN PROGRESS")
             print("Pump Current = ",I_pump," mA")
             lcddisplay('NORMAL', 'WATERING', 'g')
