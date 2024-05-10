@@ -10,7 +10,6 @@
 #MODULE IMPORTS
 import time #need time for sleep function
 from diopinsetup import diopinset
-import RPi.GPIO as GPIO
 
 ##############################################
 #Handle the pins definition and sensor definition
@@ -19,17 +18,18 @@ s1, s2, s3, s4, s5, s6, b1, ths, sms = diop[0], diop[1], diop[2], diop[3], diop[
 
 #Note, pump circuit usually s1
 
-#Setup GPIO10 as input for float switch
-#Note that the float switch's reed switch is open in the bottom float position (low water) and closed when in the top position (high water)
-#GPIO.setmode(GPIO.BOARD) #use broadcoam GPIO numbers
-#GPIO.setup(19, GPIO.IN, pull_up_down=GPIO.PUD_UP) #set pin 19 / GPIO10 as input with pull-up resistor
-
-
 def autowater(wvol): #define autowater func with water volume input in mL
     try:#check water level
-        if GPIO.input(19) == True: #if water level is low
-            return 2 #return 2 for low water level
-        
+        #Note that the float switch's reed switch is open in the bottom float position (low water) and closed when in the top position (high water)
+        #Note that b1 (GPIO10 / Pin 19) is set with a pull-up resistor
+        print(b1.value)
+        if b1.value == False:
+            pass 
+        elif b1.value == True: #if the water level is low
+            return 2
+        else:
+            return 0
+    
         wrate = 28.5 #rate of watering in mL/s
         t = wvol/wrate #time required to water in seconds
         s1.value = True #turns on pump
