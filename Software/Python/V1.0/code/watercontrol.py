@@ -22,7 +22,6 @@ def autowater(wvol): #define autowater func with water volume input in mL
     try:#check water level
         #Note that the float switch's reed switch is open in the bottom float position (low water) and closed when in the top position (high water)
         #Note that b1 (GPIO10 / Pin 19) is set with a pull-up resistor
-        print(b1.value)
         if b1.value == False:
             pass 
         elif b1.value == True: #if the water level is low
