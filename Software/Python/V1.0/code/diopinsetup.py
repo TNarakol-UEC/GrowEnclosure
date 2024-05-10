@@ -30,6 +30,7 @@ def diopinset(): #define diopinset function that takes no arguments
             'S4' : board.D20,
             'S5' : board.D26,
             'S6' : board.D21,
+            'B1' : board.D10, #GPIO 10 = pin 19, MOSI for floatswitch
             'QWIIC_SCL' : board.SCL, #Define I2C pin CLOCK, use board.SCL in pi
             'QWIIC_SDA' : board.SDA #Define I2C pin DATA, use board.SDA in pi
             }
@@ -41,11 +42,15 @@ def diopinset(): #define diopinset function that takes no arguments
         s4 = digitalio.DigitalInOut(pins['S4'])
         s5 = digitalio.DigitalInOut(pins['S5'])
         s6 = digitalio.DigitalInOut(pins['S6'])
+        b1 = digitalio.DigitalInOut(pins['B1'])
 
         for s in [s1, s2, s3, s4, s5, s6]:
             s.direction = digitalio.Direction.OUTPUT
             s.drive_mode = digitalio.DriveMode.PUSH_PULL
             s.value = False
+
+        #B1 by default of digitalIO is set up as an input to the code (read from pin)
+        #so we do not need to set it up further
 
         # Setup QWIIC Bus  
         qwiic = busio.I2C(scl=pins['QWIIC_SCL'], sda=pins['QWIIC_SDA'])
@@ -54,6 +59,6 @@ def diopinset(): #define diopinset function that takes no arguments
         ths = adafruit_ahtx0.AHTx0(qwiic) # Temperature & Humidity Sensor
         sms = Seesaw(qwiic, addr=0x36) # Soil Moisture Sensor
 
-        return s1, s2, s3, s4, s5, s6, ths, sms #return the pins and sensors as tuple of objects
+        return s1, s2, s3, s4, s5, s6, b1, ths, sms #return the pins and sensors as tuple of objects
     except Exception:
         return 0
