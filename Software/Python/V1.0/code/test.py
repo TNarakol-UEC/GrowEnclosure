@@ -4,11 +4,12 @@ from sensorfeed import feedread
 from watercontrol import autowater
 from fancontrol import fanon
 from lightcontrol import growlighton, growlightoff
+from picamera import picam_capture
 import time
 
 from diopinsetup import diopinset
 diop = diopinset()
-print(diop)
+#print(diop)
 
 feed  = feedread()
 
@@ -25,5 +26,8 @@ print(grstatus1)
 time.sleep(10)
 grstatus2 = growlightoff()
 print(grstatus2)
+
+pcamstatus = picam_capture()
+print(pcamstatus)
 
 #printlcd('text' ,'line2','g')

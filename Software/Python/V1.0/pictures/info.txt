@@ -1,1 +1,1 @@
-This is a folder for picture output from pi camera.
+This is a folder for picture output from pi camera in use if pictures cannot be saved on USB drive.
