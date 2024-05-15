@@ -1,19 +1,8 @@
 import board
 import time
 from adafruit_character_lcd.character_lcd_rgb_i2c import Character_LCD_RGB_I2C
-from addclass import PlantDef  # Ensure this import statement matches your setup
+from addclass import testPlant  # Ensure this import statement matches your setup
 
-# Initialize the plant
-testPlant = PlantDef(
-    name='testPlant',
-    dryValue=800,
-    maxTemp=30,
-    maxHumid=90,
-    waterVol=600,
-    checkTime=(12, 0),
-    sunrise=(7, 0),
-    sunset=(19, 0)
-)
 
 i2c = board.I2C()  # uses board.SCL and board.SDA
 lcd = Character_LCD_RGB_I2C(i2c, 16, 2)
