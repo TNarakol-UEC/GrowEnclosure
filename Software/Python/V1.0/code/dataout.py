@@ -52,5 +52,5 @@ def excelout(T,RH,SRH):
         with pd.ExcelWriter(filename) as writer:
             combined_df.to_excel(writer, sheet_name = xlsx_sheet_name, index = False)
         return returnvar
-    except Exception:
+    except:
         return 0

@@ -19,4 +19,7 @@ from lightcontrol import growlighton, growlightoff
 from picamera import picam_capture
 from dataout import excelout
 
+#Import plant data used as a basis
+from addclass import Plant #This import plant as a class
+
 ##############################################

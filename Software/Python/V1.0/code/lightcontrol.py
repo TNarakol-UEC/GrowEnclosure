@@ -22,7 +22,7 @@ def growlighton(): #define function to turn on growlight
         s2.value = True #turns on fan
         return 1
     
-    except Exception:
+    except:
         return 0    
 
 def growlightoff(): #define function to turn off growlight
@@ -30,5 +30,5 @@ def growlightoff(): #define function to turn off growlight
         s2.value = False #turns on fan
         return 1
     
-    except Exception:
+    except:
         return 0    
