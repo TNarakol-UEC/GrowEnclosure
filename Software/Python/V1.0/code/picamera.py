@@ -42,5 +42,5 @@ def picam_capture():
         subprocess.run(['convert', filename, '-pointsize', fontsize, '-fill', fontcolour, '-annotate', XYpos, humantimestamp, filename])
 
         return returnvar #return success or failure variables
-    except Exception:
+    except:
         return 0

@@ -25,5 +25,5 @@ def fanon(t): #define function to turn on fan for t seconds as input
         s3.value = False #turns off fan
         return 1
     
-    except Exception:
+    except:
         return 0    

@@ -4,7 +4,7 @@
 #
 #This function read sensor feeds
 #This functions execute without input and return Temp, %RH, and soilRH to main in raw form
-#returns text "ERR" on failure
+#returns single number 0 on failure
 #
 ##############################################
 #MODULE IMPORTS
@@ -22,5 +22,5 @@ def feedread(): #define feedread function
         SRH = sms.moisture_read()
 
         return T, RH, SRH #return tuple of all value
-    except Exception:
-        return "ERR"
+    except:
+        return 0

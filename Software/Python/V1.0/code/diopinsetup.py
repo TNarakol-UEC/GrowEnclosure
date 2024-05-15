@@ -60,5 +60,5 @@ def diopinset(): #define diopinset function that takes no arguments
         sms = Seesaw(qwiic, addr=0x36) # Soil Moisture Sensor
 
         return s1, s2, s3, s4, s5, s6, b1, ths, sms #return the pins and sensors as tuple of objects
-    except Exception:
+    except:
         return 0

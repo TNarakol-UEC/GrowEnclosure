@@ -36,5 +36,5 @@ def autowater(wvol): #define autowater func with water volume input in mL
         s1.value = False #turns off pump
         return 1
     
-    except Exception:
+    except:
         return 0    
