@@ -9,5 +9,14 @@
 ##############################################
 #MODULE IMPORTS
 import asyncio
+import schedule
+
+#Submodules import, these require files to be present in local dir
+from sensorfeed import feedread
+from watercontrol import autowater
+from fancontrol import fanon
+from lightcontrol import growlighton, growlightoff
+from picamera import picam_capture
+from dataout import excelout
 
 ##############################################
