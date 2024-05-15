@@ -6,6 +6,7 @@ from fancontrol import fanon
 from lightcontrol import growlighton, growlightoff
 from picamera import picam_capture
 import time
+from dataout import excelout
 
 from diopinsetup import diopinset
 diop = diopinset()
@@ -29,5 +30,8 @@ print(grstatus2)
 
 pcamstatus = picam_capture()
 print(pcamstatus)
+
+excelstatus = excelout(feed[0],feed[1],feed[2])
+print(excelstatus)
 
 #printlcd('text' ,'line2','g')
