@@ -22,7 +22,7 @@ from picamera import picam_capture
 from dataout import excelout
 from timecheck import is_time_between
 from timestrconvert import timestr
-from lcddispfunc import main_menu, lcd, debounce
+from lcddispfunc import main_menu, lcd, debounce, lcd_menu_thread
 
 #Import plant data used as a basis
 from addclass import Plant #This import plant as a class, this is imported globally
@@ -32,6 +32,12 @@ from addclass import Plant #This import plant as a class, this is imported globa
 ##############################################
 
 #This only initialize once on bootup
+
+#Start the LCD menu thread immediately
+lcd_thread = threading.Thread(target=lcd_menu_thread)
+lcd_thread.daemon = True
+lcd_thread.start()
+
 #Starts with reading values from sensor
 ReadVal = feedread() #T RH SRH in order
 if isinstance(ReadVal, tuple) == True: #Check if there is an actual value from feedread
@@ -240,18 +246,6 @@ def EverySUNSET(): #Thus should run every sunset time to turn off light
 def run_threaded(job_func):
     job_thread = threading.Thread(target=job_func)
     job_thread.start()
-
-#The following code are LCD definitions
-def lcd_menu_thread():
-    lcd.clear()
-    lcd.message = "Press Select to\nstart settings"
-    while True:
-        if lcd.select_button:
-            debounce(lambda: lcd.select_button)
-            main_menu()
-            lcd.clear()
-            lcd.message = "Press Select to\nstart settings"
-        time2.sleep(0.2)  # Reduce the refresh rate to minimize flicker
 
 #Scheduler calls
 schedule.every().hour.at(":15").do(run_threaded, EveryXX15)
