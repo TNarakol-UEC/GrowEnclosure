@@ -1,7 +1,7 @@
 import board
 import time
 from adafruit_character_lcd.character_lcd_rgb_i2c import Character_LCD_RGB_I2C
-from addclass import testPlant  # Ensure this import statement matches your setup
+from addclass import Plant  # Ensure this import statement matches your setup
 
 
 i2c = board.I2C()  # uses board.SCL and board.SDA
@@ -22,7 +22,7 @@ def debounce(button):
 
 def adjust_parameter(parameter_name, step, min_val, max_val):
     """General function to adjust a numerical parameter."""
-    value = getattr(testPlant, parameter_name)
+    value = getattr(Plant, parameter_name)
     message = f"{parameter_name}: {value}  "
     lcd.message = message
     while True:
@@ -40,7 +40,7 @@ def adjust_parameter(parameter_name, step, min_val, max_val):
             lcd.message = message
         elif lcd.select_button:
             debounce(lambda: lcd.select_button)
-            setattr(testPlant, parameter_name, value)
+            setattr(Plant, parameter_name, value)
             message = f"Set to {value}    "
             lcd.message = message
             time.sleep(1)  # Show the set message
@@ -49,7 +49,7 @@ def adjust_parameter(parameter_name, step, min_val, max_val):
 
 def adjust_time_parameter(parameter_name):
     """Function to adjust time parameters (HH:MM)."""
-    value = getattr(testPlant, parameter_name)
+    value = getattr(Plant, parameter_name)
     hours, minutes = value
     message = f"{parameter_name}: {hours:02d}:{minutes:02d}  "
     lcd.message = message
@@ -76,7 +76,7 @@ def adjust_time_parameter(parameter_name):
             lcd.message = message
         elif lcd.select_button:
             debounce(lambda: lcd.select_button)
-            setattr(testPlant, parameter_name, (hours, minutes))
+            setattr(Plant, parameter_name, (hours, minutes))
             message = f"Set to {hours:02d}:{minutes:02d}  "
             lcd.message = message
             time.sleep(1)  # Show the set message
@@ -87,32 +87,6 @@ def display_menu(options, index):
     """Helper function to display menu options with the current selection on the bottom line."""
     lcd.clear()
     lcd.message = f"Select Option:\n{options[index][:16]}"
-
-def main_menu():
-    """Function to navigate between different settings."""
-    options = ['Edit Settings', 'Manual Control']
-    index = 0
-    display_menu(options, index)
-    while True:
-        update = False
-        if lcd.up_button:
-            debounce(lambda: lcd.up_button)
-            index = (index - 1) % len(options)
-            update = True
-        elif lcd.down_button:
-            debounce(lambda: lcd.down_button)
-            index = (index + 1) % len(options)
-            update = True
-        if update:
-            display_menu(options, index)
-        elif lcd.select_button:
-            debounce(lambda: lcd.select_button)
-            if options[index] == 'Edit Settings':
-                edit_settings_menu()
-            elif options[index] == 'Manual Control':
-                manual_control_menu()
-            display_menu(options, index)
-            time.sleep(0.5)  # Pause before returning to menu
 
 def edit_settings_menu():
     """Function to navigate and edit settings."""
@@ -219,13 +193,40 @@ def manual_control_menu():
             display_menu(options, index)
             time.sleep(0.5)  # Pause before returning to menu
 
-# Main loop
-lcd.clear()
-lcd.message = "Press Select to\nstart settings"
-while True:
-    if lcd.select_button:
-        debounce(lambda: lcd.select_button)
-        main_menu()
-        lcd.clear()
-        lcd.message = "Press Select to\nstart settings"
-    time.sleep(0.2)  # Reduce the refresh rate to minimize flicker
+def main_menu():
+    """Function to navigate between different settings."""
+    options = ['Edit Settings', 'Manual Control']
+    index = 0
+    display_menu(options, index)
+    while True:
+        update = False
+        if lcd.up_button:
+            debounce(lambda: lcd.up_button)
+            index = (index - 1) % len(options)
+            update = True
+        elif lcd.down_button:
+            debounce(lambda: lcd.down_button)
+            index = (index + 1) % len(options)
+            update = True
+        if update:
+            display_menu(options, index)
+        elif lcd.select_button:
+            debounce(lambda: lcd.select_button)
+            if options[index] == 'Edit Settings':
+                edit_settings_menu()
+            elif options[index] == 'Manual Control':
+                manual_control_menu()
+            display_menu(options, index)
+            time.sleep(0.5)  # Pause before returning to menu
+
+
+def lcd_menu_thread():
+    lcd.clear()
+    lcd.message = "Press Select to\nstart settings"
+    while True:
+        if lcd.select_button:
+            debounce(lambda: lcd.select_button)
+            main_menu()
+            lcd.clear()
+            lcd.message = "Press Select to\nstart settings"
+        time.sleep(0.2)  # Reduce the refresh rate to minimize flicker

@@ -22,6 +22,7 @@ from picamera import picam_capture
 from dataout import excelout
 from timecheck import is_time_between
 from timestrconvert import timestr
+from lcddispfunc import main_menu, lcd, debounce
 
 #Import plant data used as a basis
 from addclass import Plant #This import plant as a class, this is imported globally
@@ -240,6 +241,18 @@ def run_threaded(job_func):
     job_thread = threading.Thread(target=job_func)
     job_thread.start()
 
+#The following code are LCD definitions
+def lcd_menu_thread():
+    lcd.clear()
+    lcd.message = "Press Select to\nstart settings"
+    while True:
+        if lcd.select_button:
+            debounce(lambda: lcd.select_button)
+            main_menu()
+            lcd.clear()
+            lcd.message = "Press Select to\nstart settings"
+        time2.sleep(0.2)  # Reduce the refresh rate to minimize flicker
+
 #Scheduler calls
 schedule.every().hour.at(":15").do(run_threaded, EveryXX15)
 schedule.every().hour.at(":25").do(run_threaded, EveryXX25)
@@ -248,6 +261,6 @@ schedule.every().day.at(watersettime).do(run_threaded, EverySETTIME)
 schedule.every().day.at(sunrisesettime).do(run_threaded, EverySUNRISE)
 schedule.every().day.at(sunsetsettime).do(run_threaded, EverySUNSET)
 
-while 1:
+while True:
     schedule.run_pending()
     time2.sleep(1)
