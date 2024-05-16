@@ -8,25 +8,21 @@ from picamera import picam_capture
 import time
 from dataout import excelout
 
-from diopinsetup import diopinset
-diop = diopinset()
-#print(diop)
-
 feed  = feedread()
 
 print(feed[0])
 print(feed[1])
 print(feed[2])
 
+grstatus1 = growlighton()
+print(grstatus1)
 atwtr = autowater(142.5)
 print(atwtr)
 atfan = fanon(5)
 print(atfan)
-grstatus1 = growlighton()
-print(grstatus1)
 time.sleep(10)
-grstatus2 = growlightoff()
-print(grstatus2)
+#grstatus2 = growlightoff()
+#print(grstatus2)
 
 pcamstatus = picam_capture()
 print(pcamstatus)
