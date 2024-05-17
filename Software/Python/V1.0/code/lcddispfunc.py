@@ -1,11 +1,20 @@
 import board
 import time
+from datetime import datetime
 from adafruit_character_lcd.character_lcd_rgb_i2c import Character_LCD_RGB_I2C
 from addclass import Plant  # Ensure this import statement matches your setup
 
-
 i2c = board.I2C()  # uses board.SCL and board.SDA
 lcd = Character_LCD_RGB_I2C(i2c, 16, 2)
+
+def set_lcd_color(status):
+    """Set LCD color based on status."""
+    if status == "normal":
+        lcd.color = [0, 100, 0]  # Green
+    elif status == "in_progress":
+        lcd.color = [0, 0, 100]  # Blue
+    elif status == "error":
+        lcd.color = [100, 0, 0]  # Red
 
 def debounce(button):
     """ Debounce a button property """
@@ -41,6 +50,7 @@ def adjust_parameter(parameter_name, step, min_val, max_val):
         elif lcd.select_button:
             debounce(lambda: lcd.select_button)
             setattr(Plant, parameter_name, value)
+            Plant.save_to_file()  # Save the settings
             message = f"Set to {value}    "
             lcd.message = message
             time.sleep(1)  # Show the set message
@@ -77,6 +87,7 @@ def adjust_time_parameter(parameter_name):
         elif lcd.select_button:
             debounce(lambda: lcd.select_button)
             setattr(Plant, parameter_name, (hours, minutes))
+            Plant.save_to_file()  # Save the settings
             message = f"Set to {hours:02d}:{minutes:02d}  "
             lcd.message = message
             time.sleep(1)  # Show the set message
@@ -219,14 +230,13 @@ def main_menu():
             display_menu(options, index)
             time.sleep(0.5)  # Pause before returning to menu
 
-
 def lcd_menu_thread():
     lcd.clear()
-    lcd.message = "Press Select to\nstart settings"
     while True:
+        current_time = datetime.now().strftime("%H:%M:%S")
+        lcd.message = f"{current_time}\nPress Select to start"
         if lcd.select_button:
             debounce(lambda: lcd.select_button)
             main_menu()
             lcd.clear()
-            lcd.message = "Press Select to\nstart settings"
-        time.sleep(0.2)  # Reduce the refresh rate to minimize flicker
+        time.sleep(1)  # Refresh the time every second

@@ -14,7 +14,7 @@ import adafruit_character_lcd.character_lcd_rgb_i2c as character_lcd
 #Define LCD
 lcd_columns = 16
 lcd_rows = 2
-i2c = busio.I2C(board.SCL, board.SDA)
+i2c = busio.I2C(board.SCL, board.SDA, frequency=100000)  # Set I2C frequency to 100kHz
 lcd = character_lcd.Character_LCD_RGB_I2C(i2c, lcd_columns, lcd_rows)
 lcd.cursor = False
 
