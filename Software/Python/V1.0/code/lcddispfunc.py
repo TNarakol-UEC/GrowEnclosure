@@ -3,6 +3,9 @@ import time
 from datetime import datetime
 from adafruit_character_lcd.character_lcd_rgb_i2c import Character_LCD_RGB_I2C
 from addclass import Plant  # Ensure this import statement matches your setup
+import commentedconfigparser
+
+config = commentedconfigparser.CommentedConfigParser()
 
 i2c = board.I2C()  # uses board.SCL and board.SDA
 lcd = Character_LCD_RGB_I2C(i2c, 16, 2)
@@ -131,7 +134,14 @@ def edit_settings_menu():
             elif options[index] == 'Humidity Setpoint':
                 adjust_parameter('maxHumid', 5, 0, 100)
             elif options[index] == 'Camera Yes/No':
-                # Add camera toggle functionality here
+                config.read("grobot_cfg.ini") #Read the config file
+                match config['PICAMERA']['CameraSet']: #Match the config case to toggle between 0 or 1
+                    case '0':
+                        config['PICAMERA']['CameraSet'] = '1'
+                    case '1':
+                        config['PICAMERA']['CameraSet'] = '0'
+                with open('grobot_cfg.ini', 'w') as configfile: #Write the settings back to config
+                    config.write(configfile)
                 pass
             elif options[index] == 'Back':
                 break

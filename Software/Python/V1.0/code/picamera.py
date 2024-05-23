@@ -12,11 +12,23 @@
 import subprocess
 import datetime
 import os
+import configparser
+
+config = configparser.ConfigParser()
 
 #define function to take picture
 #Note that we are using subprocess to allow python code to run command line command
 def picam_capture():
     try:
+        #First check if the camera is configured to be on:
+        config.read("grobot_cfg.ini") #Read the grobot config file
+        match config['PICAMERA']['CameraSet']: #Configparser always parse as strings
+            case '0': #0 is no camera attached
+                return 1 #Ends function and returns now, sending 1 as it successfelly do not execute per config
+            case '1':
+                pass
+            case _:
+                return 0 #If there is no proper match, return an error 
         #This part takes an image    
         timestamp = datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S") #get current date and time
         humantimestamp = datetime.datetime.now().strftime("%H:%M %d/%B/%Y") #Timestamp for image
