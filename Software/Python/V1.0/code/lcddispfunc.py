@@ -134,6 +134,9 @@ def edit_settings_menu():
             elif options[index] == 'Humidity Setpoint':
                 adjust_parameter('maxHumid', 5, 0, 100)
             elif options[index] == 'Camera Yes/No':
+                ##########################
+                ## NEEDS ERROR HANDLING ##
+                ##########################
                 config.read("grobot_cfg.ini") #Read the config file
                 match config['PICAMERA']['CameraSet']: #Match the config case to toggle between 0 or 1
                     case '0':
@@ -198,16 +201,28 @@ def manual_control_menu():
         elif lcd.select_button:
             debounce(lambda: lcd.select_button)
             if options[index] == 'Take Picture Now':
-                # Add take picture functionality here
+                ##########################
+                ## NEEDS ERROR HANDLING ##
+                ##########################
+                pcamstatus = picam_capture()
                 pass
             elif options[index] == 'Water Now':
-                # Add water now functionality here
+                ##########################
+                ## NEEDS ERROR HANDLING ##
+                ##########################
+                wtrstatus = autowater(Plant.waterVol)
                 pass
             elif options[index] == 'Light On Now':
-                # Add light on functionality here
+                ##########################
+                ## NEEDS ERROR HANDLING ##
+                ##########################
+                grstatus = growlighton()
                 pass
             elif options[index] == 'Fan On Now':
-                # Add fan on functionality here
+                ##########################
+                ## NEEDS ERROR HANDLING ##
+                ##########################
+                fanstatus = fanon(Plant.fanTime)
                 pass
             elif options[index] == 'Back':
                 break
