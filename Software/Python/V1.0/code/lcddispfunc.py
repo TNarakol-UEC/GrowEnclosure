@@ -74,7 +74,6 @@ def adjust_parameter(parameter_name, step, min_val, max_val):
             time.sleep(1)  # Show the set message
             break
         time.sleep(0.2)  # Reduce refresh rate to minimize jitter
-
 def adjust_time_parameter(parameter_name):
     """Function to adjust time parameters (HH:MM)."""
     value = getattr(Plant, parameter_name)
@@ -109,6 +108,7 @@ def adjust_time_parameter(parameter_name):
             message = f"Set to {hours:02d}:{minutes:02d}"
             lcd.message = message
             time.sleep(1)  # Show the set message
+            reload_settings()  # Reload settings and update schedules
             break
         time.sleep(0.2)  # Reduce refresh rate to minimize jitter
 
