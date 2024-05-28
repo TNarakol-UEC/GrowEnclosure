@@ -3,6 +3,12 @@ import time
 from datetime import datetime
 from adafruit_character_lcd.character_lcd_rgb_i2c import Character_LCD_RGB_I2C
 from addclass import Plant  # Ensure this import statement matches your setup
+
+from watercontrol import autowater
+from fancontrol import fanon
+from lightcontrol import growlighton, growlightoff
+from picamera import picam_capture
+
 import commentedconfigparser
 import threading  # Add this import statement
 
