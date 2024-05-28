@@ -4,6 +4,21 @@ from datetime import datetime
 from adafruit_character_lcd.character_lcd_rgb_i2c import Character_LCD_RGB_I2C
 from addclass import Plant  # Ensure this import statement matches your setup
 import commentedconfigparser
+import threading  # Add this import statement
+
+# Import control functions
+from lightcontrol import growlighton, growlightoff
+from fancontrol import fanon, fanoff
+from watercontrol import autowater, stopwater
+
+# Global variables for manual override and watering state
+manual_override = {
+    "light": False,
+    "fan": False,
+    "watering": False
+}
+
+watering_active = False
 
 config = commentedconfigparser.CommentedConfigParser()
 
@@ -85,13 +100,13 @@ def adjust_time_parameter(parameter_name):
             minutes = (minutes - 1) % 60
             update = True
         if update:
-            message = f"{parameter_name}: {hours:02d}:{minutes:02d}  "
+            message = f"{parameter_name}: {hours:02d}:{minutes:02d}"
             lcd.message = message
         elif lcd.select_button:
             debounce(lambda: lcd.select_button)
             setattr(Plant, parameter_name, (hours, minutes))
             Plant.save_to_file()  # Save the settings
-            message = f"Set to {hours:02d}:{minutes:02d}  "
+            message = f"Set to {hours:02d}:{minutes:02d}"
             lcd.message = message
             time.sleep(1)  # Show the set message
             break
@@ -180,10 +195,9 @@ def irrigation_menu():
                 break
             display_menu(options, index)
             time.sleep(0.5)  # Pause before returning to menu
-
 def manual_control_menu():
     """Function to handle manual controls."""
-    options = ['Take Picture Now', 'Water Now', 'Light On Now', 'Fan On Now', 'Back']
+    options = ['Take Picture Now', 'Water Now', 'Stop Watering Now', 'Light On Now', 'Light Off Now', 'Fan On Now', 'Fan Off Now', 'Back']
     index = 0
     display_menu(options, index)
     while True:
@@ -201,34 +215,112 @@ def manual_control_menu():
         elif lcd.select_button:
             debounce(lambda: lcd.select_button)
             if options[index] == 'Take Picture Now':
-                ##########################
-                ## NEEDS ERROR HANDLING ##
-                ##########################
-                pcamstatus = picam_capture()
-                pass
+                start_picture_thread()
             elif options[index] == 'Water Now':
-                ##########################
-                ## NEEDS ERROR HANDLING ##
-                ##########################
-                wtrstatus = autowater(Plant.waterVol)
-                pass
+                start_watering_thread()
+            elif options[index] == 'Stop Watering Now':
+                control_watering(False)
             elif options[index] == 'Light On Now':
-                ##########################
-                ## NEEDS ERROR HANDLING ##
-                ##########################
-                grstatus = growlighton()
-                pass
+                control_light(True)
+            elif options[index] == 'Light Off Now':
+                control_light(False)
             elif options[index] == 'Fan On Now':
-                ##########################
-                ## NEEDS ERROR HANDLING ##
-                ##########################
-                fanstatus = fanon(Plant.fanTime)
-                pass
+                start_fan_thread()
+            elif options[index] == 'Fan Off Now':
+                control_fan(False)
             elif options[index] == 'Back':
                 break
             display_menu(options, index)
             time.sleep(0.5)  # Pause before returning to menu
+def start_fan_thread():
+    """Start the fan in a separate thread."""
+    threading.Thread(target=control_fan, args=(True,)).start()
+def start_picture_thread():
+    """Start the picture-taking process in a separate thread."""
+    threading.Thread(target=control_picture).start()
+def start_watering_thread():
+    """Start a thread for the watering process."""
+    global watering_active
+    watering_active = True
+    threading.Thread(target=control_watering, args=(True,)).start()
 
+def control_light(turn_on):
+    """Control the grow light."""
+    global manual_override
+    try:
+        if turn_on:
+            print("Manual override: Turning light on.")
+            result = growlighton()
+            manual_override["light"] = True
+            print(f"growlighton() result: {result}")
+            lcd.message = "Light On" if result else "Light On Failed"
+        else:
+            print("Manual override: Turning light off.")
+            result = growlightoff()
+            manual_override["light"] = False
+            print(f"growlightoff() result: {result}")
+            lcd.message = "Light Off" if result else "Light Off Failed"
+        time.sleep(2)  # Keep the message for 2 seconds
+    except Exception as e:
+        print(f"Error controlling light: {e}")
+        lcd.message = f"Error: {e}"
+        time.sleep(2)
+def control_picture():
+    """Control the picture-taking process."""
+    try:
+        result = picam_capture()
+        lcd.message = "Picture Taken" if result else "Pic Failed"
+        time.sleep(2)  # Keep the message for 2 seconds
+    except Exception as e:
+        print(f"Error taking picture: {e}")
+        lcd.message = f"Error: {e}"
+        time.sleep(2)
+def control_watering(start):
+    """Control the watering system."""
+    global manual_override, watering_active
+    try:
+        if start:
+            print("Manual override: Starting watering.")
+            result = autowater(Plant.waterVol)
+            manual_override["watering"] = True
+            print(f"autowater() result: {result}")
+            lcd.message = "Watering" if result == 1 else "Watering Failed"
+            if result == 2:
+                lcd.message = "Low Water"
+        else:
+            print("Manual override: Stopping watering.")
+            result = stopwater()
+            manual_override["watering"] = False
+            watering_active = False
+            print(f"stopwater() result: {result}")
+            lcd.message = "Water Stopped" if result else "Stop Failed"
+        time.sleep(2)  # Keep the message for 2 seconds
+    except Exception as e:
+        print(f"Error controlling watering: {e}")
+        lcd.message = f"Error: {e}"
+        time.sleep(2)
+
+def control_fan(turn_on):
+    """Control the fan."""
+    global manual_override
+    try:
+        if turn_on:
+            print(f"Manual override: Turning fan on.")
+            result = fanon(Plant.fanTime)
+            manual_override["fan"] = True
+            print(f"fanon() result: {result}")
+            lcd.message = "Fan On" if result else "Fan On Failed"
+        else:
+            print("Manual override: Turning fan off.")
+            result = fanoff()
+            manual_override["fan"] = False
+            print(f"fanoff() result: {result}")
+            lcd.message = "Fan Off" if result else "Fan Off Failed"
+        time.sleep(2)  # Keep the message for 2 seconds
+    except Exception as e:
+        print(f"Error controlling fan: {e}")
+        lcd.message = f"Error: {e}"
+        time.sleep(2)
 def main_menu():
     """Function to navigate between different settings."""
     options = ['Edit Settings', 'Manual Control']
@@ -254,6 +346,8 @@ def main_menu():
                 manual_control_menu()
             display_menu(options, index)
             time.sleep(0.5)  # Pause before returning to menu
+
+# Main
 
 def lcd_menu_thread():
     lcd.clear()

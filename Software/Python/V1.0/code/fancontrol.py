@@ -27,3 +27,10 @@ def fanon(t): #define function to turn on fan for t seconds as input
     
     except:
         return 0    
+    
+def fanoff():  # define function to turn off fan
+    try:
+        s3.value = False  # turns off fan
+        return 1
+    except:
+        return 0
