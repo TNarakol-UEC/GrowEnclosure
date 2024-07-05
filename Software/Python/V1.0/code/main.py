@@ -368,5 +368,14 @@ while 1:
         run_threaded(EverySUNRISE)
     if currhour == checkTime[0] and currminute == checkTime[1]:
         run_threaded(EverySETTIME)
-    
-    time2.sleep(60) #This code only use the minute hand so sleeping for 30 second should allow for any change in minute to execute
+
+    #Implement logic to sleep until next tick
+    currtickminute = datetime.now().minute
+
+    if currtickminute == currminute: #If we are still in the same minute as initial time check, sleep until minute change
+        tsleep = 61 - currtickminute
+        time2.sleep(tsleep)
+    elif currtickminute > currminute: #Immediately rerun loop if current tick is larger than initial time set during update
+        pass
+    else:
+        raise RuntimeError('TIME EXCEPTION') #Time anomaly
