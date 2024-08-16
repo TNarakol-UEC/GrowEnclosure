@@ -8,7 +8,6 @@ from watercontrol import autowater, stopwater
 from picamera import picam_capture
 import config
 from timecheck import is_time_between
-import state  # Import the global state module
 from datetime import datetime, time as datetime_time
 import subprocess  # Import for setting the system time
 from config import get_plant_settings
@@ -405,20 +404,23 @@ def control_fan(turn_on):
         lcd.message = f"Error: {e}"
         time.sleep(2)
 
-def apply_settings():
-    global settings
-    settings = get_plant_settings()  # Re-read the latest settings from the config file
+def apply_settings(): # Important note, not required to check every settings let main loop run
+    
+    # global settings
+    # settings = get_plant_settings()  # Re-read the latest settings from the config file
 
     # Immediately apply the settings that require real-time updates
-    if is_time_between(datetime_time(settings['sunrise'][0], settings['sunrise'][1]), datetime_time(settings['sunset'][0], settings['sunset'][1])):
-        growlighton()
-    else:
-        growlightoff()
+    # if is_time_between(datetime_time(settings['sunrise'][0], settings['sunrise'][1]), datetime_time(settings['sunset'][0], settings['sunset'][1])):
+    #     growlighton()
+    # else:
+    #     growlightoff()
 
-    if state.ReadVal[0] > settings['maxTemp'] or state.ReadVal[1] > settings['maxHumid']:
-        fanon(settings['fanTime'])
-    else:
-        fanoff()
+    # if ReadVal[0] > settings['maxTemp'] or ReadVal[1] > settings['maxHumid']:
+    #     fanon(settings['fanTime'])
+    # else:
+    #     fanoff()
+
+    return
 
 def main_menu():
     """Function to navigate between different settings."""

@@ -13,6 +13,7 @@ import time as time2 #We already import time from datetime so time library is im
 import threading
 
 #Submodules import, these require files to be present in local dir
+from BoardMOSFETReset import grobotboot
 from sensorfeed import feedread
 from watercontrol import autowater
 from fancontrol import fanon
@@ -20,13 +21,15 @@ from lightcontrol import growlighton, growlightoff
 from picamera import picam_capture
 from dataout import excelout
 from timecheck import is_time_between
-from config import get_plant_settings, read_config
-from lcddispfunc import lcd_menu_thread, set_lcd_color, apply_settings
-import state  # Import the global state module
+from config import get_plant_settings
+from lcddispfunc import lcd_menu_thread, set_lcd_color
 
 ##############################################
 ################# ON BOOTUP ##################
 ##############################################
+
+#Runs BoardMostfetReset
+grobotboot() #This force all pin reset
 
 # This only initialize once on bootup
 set_lcd_color("normal")  # Set LCD color to green on bootup
@@ -38,10 +41,10 @@ lcd_thread.start()
 
 # Starts with reading values from sensor
 try:
-    state.ReadVal = feedread() # T RH SRH in order
-    if isinstance(state.ReadVal, tuple) == True: # Check if there is an actual value from feedread
+    ReadVal = feedread() # T RH SRH in order
+    if isinstance(ReadVal, tuple) == True: # Check if there is an actual value from feedread
         pass
-    elif state.ReadVal == 0: # If returns 0 there is a failure in feedread
+    elif ReadVal == 0: # If returns 0 there is a failure in feedread
         set_lcd_color("error")  # Set LCD color to red on error
         raise RuntimeError('SENSOR FAIL') # Force code to quit and systemd will force it to restart
     else: # For any unknown error
@@ -77,7 +80,7 @@ try:
         raise RuntimeError('UKNOWN FAILURE')
 
     # Check if internal humidity or temperature is too high and the fan needs to be on
-    if state.ReadVal[0] > settings['maxTemp'] or state.ReadVal[1] > settings['maxHumid']:
+    if ReadVal[0] > settings['maxTemp'] or ReadVal[1] > settings['maxHumid']:
         fanstatus = fanon(settings['fanTime'])
         if fanstatus == 1:
             pass
@@ -87,7 +90,7 @@ try:
         else:
             set_lcd_color("error")  # Set LCD color to red on error
             raise RuntimeError('UKNOWN FAILURE')
-    elif state.ReadVal[0] <= settings['maxTemp'] and state.ReadVal[1] <= settings['maxHumid']:
+    elif ReadVal[0] <= settings['maxTemp'] and ReadVal[1] <= settings['maxHumid']:
         pass
     else:
         set_lcd_color("error")  # Set LCD color to red on error
@@ -108,10 +111,10 @@ def EveryXX15(): # This schedule grouping runs at every quarter of hour
 
         # This should read value from sensor and turn fan on or off
         # Read value from sensor
-        state.ReadVal = feedread() # T RH SRH in order
-        if isinstance(state.ReadVal, tuple) == True: # Check if there is an actual value from feedread
+        ReadVal = feedread() # T RH SRH in order
+        if isinstance(ReadVal, tuple) == True: # Check if there is an actual value from feedread
             pass
-        elif state.ReadVal == 0: # If returns 0 there is a failure in feedread
+        elif ReadVal == 0: # If returns 0 there is a failure in feedread
             set_lcd_color("error")  # Set LCD color to red on error
             raise RuntimeError('SENSOR FAIL') # Force code to quit and systemd will force it to restart
         else: # For any unknown error
@@ -119,7 +122,7 @@ def EveryXX15(): # This schedule grouping runs at every quarter of hour
             raise RuntimeError('UKNOWN FAILURE')
 
         # Turn on fan if temp or humidity exceeds the limit 
-        if state.ReadVal[0] > settings['maxTemp'] or state.ReadVal[1] > settings['maxHumid']:
+        if ReadVal[0] > settings['maxTemp'] or ReadVal[1] > settings['maxHumid']:
             fanstatus = fanon(settings['fanTime'])
             if fanstatus == 1:
                 pass
@@ -129,7 +132,7 @@ def EveryXX15(): # This schedule grouping runs at every quarter of hour
             else:
                 set_lcd_color("error")  # Set LCD color to red on error
                 raise RuntimeError('UKNOWN FAILURE')
-        elif state.ReadVal[0] <= settings['maxTemp'] and state.ReadVal[1] <= settings['maxHumid']:
+        elif ReadVal[0] <= settings['maxTemp'] and ReadVal[1] <= settings['maxHumid']:
             pass
         else:
             set_lcd_color("error")  # Set LCD color to red on error
@@ -141,17 +144,17 @@ def EveryXX15(): # This schedule grouping runs at every quarter of hour
         set_lcd_color("error")  # Set LCD color to red on error
         raise e
 
-def EverySETTIME(): # This runs every settime read from addclass.py
+def EverySETTIME(): # This runs every settime read from grobot_cfg
     try:
         settings = get_plant_settings()
         set_lcd_color("in_progress")  # Set LCD color to blue when in progress
 
         # This should read value from sensor and autowater if Soil moisture too low
         # Read value from sensor
-        state.ReadVal = feedread() # T RH SRH in order
-        if isinstance(state.ReadVal, tuple) == True: # Check if there is an actual value from feedread
+        ReadVal = feedread() # T RH SRH in order
+        if isinstance(ReadVal, tuple) == True: # Check if there is an actual value from feedread
             pass
-        elif state.ReadVal == 0: # If returns 0 there is a failure in feedread
+        elif ReadVal == 0: # If returns 0 there is a failure in feedread
             set_lcd_color("error")  # Set LCD color to red on error
             raise RuntimeError('SENSOR FAIL') # Force code to quit and systemd will force it to restart
         else: # For any unknown error
@@ -159,11 +162,11 @@ def EverySETTIME(): # This runs every settime read from addclass.py
             raise RuntimeError('UKNOWN FAILURE')
 
         # Now water plant if soil too dry
-        if state.ReadVal[2] <= settings['dryValue']:
+        if ReadVal[2] <= settings['dryValue']:
             wtrstatus = autowater(settings['waterVol'])
             if wtrstatus == 1:
                 pass
-            elif wtrstatus == 2:
+            elif wtrstatus == 2:        # Low water level
                 set_lcd_color("error")  # Set LCD color to red on error
                 pass
             elif wtrstatus == 0:
@@ -172,7 +175,7 @@ def EverySETTIME(): # This runs every settime read from addclass.py
             else:
                 set_lcd_color("error")  # Set LCD color to red on error
                 raise RuntimeError('UKNOWN FAILURE')
-        elif state.ReadVal[2] > settings['dryValue']:
+        elif ReadVal[2] > settings['dryValue']:
             pass
         else:
             set_lcd_color("error")  # Set LCD color to red on error
@@ -190,10 +193,10 @@ def EveryXX25(): # This code runs at every 25 minute mark of the hour
 
         # Read value from sensor and write it out to excel
         # Read value from sensor
-        state.ReadVal = feedread() # T RH SRH in order
-        if isinstance(state.ReadVal, tuple) == True: # Check if there is an actual value from feedread
+        ReadVal = feedread() # T RH SRH in order
+        if isinstance(ReadVal, tuple) == True: # Check if there is an actual value from feedread
             pass
-        elif state.ReadVal == 0: # If returns 0 there is a failure in feedread
+        elif ReadVal == 0: # If returns 0 there is a failure in feedread
             set_lcd_color("error")  # Set LCD color to red on error
             raise RuntimeError('SENSOR FAIL') # Force code to quit and systemd will force it to restart
         else: # For any unknown error
@@ -201,10 +204,10 @@ def EveryXX25(): # This code runs at every 25 minute mark of the hour
             raise RuntimeError('UKNOWN FAILURE')
 
         # Write data out to excel file
-        excelstatus = excelout(state.ReadVal[0], state.ReadVal[1], state.ReadVal[2])
+        excelstatus = excelout(ReadVal[0], ReadVal[1], ReadVal[2])
         if excelstatus == 1:
             pass
-        elif excelstatus == 2:
+        elif excelstatus == 2:      #Alternative directory used
             set_lcd_color("error")  # Set LCD color to red on error
             pass
         elif excelstatus == 0:
@@ -228,7 +231,7 @@ def EveryXX35(): # Runs every 35 minute mark of the hour
         pcamstatus = picam_capture()
         if pcamstatus == 1:
             pass
-        elif pcamstatus == 2:
+        elif pcamstatus == 2:       #Alternate directory used
             set_lcd_color("error")  # Set LCD color to red on error
             pass
         elif pcamstatus == 0:
@@ -291,7 +294,6 @@ def run_threaded(job_func):
 
 # This is now the main running thread, one while loop that spawns subthreads as needed.
 while 1:
-    apply_settings()  # Ensure settings are applied every loop
     settings = get_plant_settings()
     currhour = datetime.now().hour
     currminute = datetime.now().minute

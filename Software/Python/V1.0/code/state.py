@@ -1,2 +1,0 @@
-# state.py
-ReadVal = None

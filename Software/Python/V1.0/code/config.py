@@ -1,14 +1,18 @@
-# config.py
+#Growth Enclosure config file readout code
+#Ulnooweg Education Centre - All rights reserved
+#Contact: ulnoowegeducation.ca
 
+#V1.0
+#This code defines several important function to read config files including
+#get_plant _settings() which read config and return plant settings as a tuple of data
+########################################
+
+#Import important modules
 import configparser
 
 config = configparser.ConfigParser()
 
-def read_config():
-    config.read("grobot_cfg.ini")
-    return config
-
-def get_plant_settings():
+def get_plant_settings(): #Define get_plant_settings which read config file and put them in a dictionaried variable
     config.read("grobot_cfg.ini")
     settings = {
         'sunrise': [int(x) for x in config['PLANTCFG']['sunrise'].split(",")],
@@ -20,9 +24,9 @@ def get_plant_settings():
         'waterVol': int(config['PLANTCFG']['waterVol']),
         'fanTime': int(config['PLANTCFG']['fanTime'])
     }
-    return settings
+    return settings #return variable as a dictionary 
 
-def update_config(section, parameter, value):
+def update_config(section, parameter, value): #Define function to write variable back to config file
     config.read("grobot_cfg.ini")
     config[section][parameter] = str(value)
     with open('grobot_cfg.ini', 'w') as configfile:

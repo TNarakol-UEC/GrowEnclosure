@@ -1,0 +1,13 @@
+[Unit]
+Description=Grobot main system file
+After=multi-user.target
+
+[Service]
+WorkingDirectory=/home/grobot/code
+ExecStart=/home/grobot/adapi/bin/python /home/grobot/code/main.py
+Restart=always
+RestartSec=2s
+Nice=-20
+
+[Install]
+WantedBy=multi-user.target

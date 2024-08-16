@@ -15,8 +15,6 @@ from diopinsetup import diopinset
 # Handle the pins definition and sensor definition
 diop = diopinset()
 
-print(f"Debug: diopinset returned: {diop}")  # Debugging line
-
 if isinstance(diop, tuple):
     s1, s2, s3, s4, s5, s6, b1, ths, sms = diop
 else:
