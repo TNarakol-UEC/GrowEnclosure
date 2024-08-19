@@ -25,13 +25,15 @@ def autowater(wvol):  # define autowater func with water volume input in mL
 
         #### REQUIRES FURTHER INVESTIGATION - NOT WORKING CONSISTENTLY ####
 
-        if b1.value == False:
-            pass 
-        elif b1.value == True:  # if the water level is low
-            return 2
-        else:
-            return 0
+        #if b1.value == False:
+        #    pass 
+        #elif b1.value == True:  # if the water level is low
+        #    return 2
+        #else:
+        #    return 0
     
+        ###################
+
         wrate = 28.5  # rate of watering in mL/s
         t = wvol/wrate  # time required to water in seconds
         s1.value = True  # turns on pump
