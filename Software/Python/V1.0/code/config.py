@@ -12,6 +12,10 @@ import configparser
 
 config = configparser.ConfigParser()
 
+def read_config():
+    config.read("grobot_cfg.ini")
+    return config
+
 def get_plant_settings(): #Define get_plant_settings which read config file and put them in a dictionaried variable
     config.read("grobot_cfg.ini")
     settings = {
