@@ -3,7 +3,7 @@ Description=Grobot MOSTFETs initialization on boot
 After=multi-user.target
 
 [Service]
-ExecStart=/home/grobot/adapi/bin/python /home/grobot/code/BoardMOSFETReset.py
+ExecStart=/home/grobot/adapi/bin/python /mnt/grobotextdat/code/BoardMOSFETReset.py
 Type=oneshot
 RemainAfterExit=no
 Nice=-20
