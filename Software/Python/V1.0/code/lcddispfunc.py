@@ -422,6 +422,11 @@ def apply_settings(): # Important note, not required to check every settings let
 
     return
 
+
+
+# Add a function to convert the mm to pump second.  
+
+
 def main_menu():
     """Function to navigate between different settings."""
     options = ['Edit Settings', 'Manual Control', 'Back']
