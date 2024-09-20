@@ -94,8 +94,7 @@ def edit_settings_menu():
                 config.update_config('PICAMERA', 'CameraSet', '0' if cam_set == '1' else '1')
                 apply_settings()  # Apply the camera setting change
             elif options[index] == 'Back':
-                clear_and_return_to_menu()
-                break
+                return
             display_menu(options, index)
             time.sleep(0.5)  # Pause before returning to menu
 
@@ -127,8 +126,7 @@ def adjust_parameter(parameter_name, step, min_val, max_val, display_name):
             message = f"Set to:\n{value}"
             lcd.message = message
             time.sleep(1)  # Show the set message
-            clear_and_return_to_menu()
-            break
+            return
         time.sleep(0.2)  # Reduce refresh rate to minimize jitter
 
 def adjust_time_parameter(parameter_name, display_name):
@@ -168,8 +166,7 @@ def adjust_time_parameter(parameter_name, display_name):
             message = f"Set to:\n{hours:02d}:{minutes:02d}"
             lcd.message = message
             time.sleep(1)  # Show the set message
-            clear_and_return_to_menu()
-            break
+            return
         time.sleep(0.2)  # Reduce refresh rate to minimize jitter
 
 def adjust_system_time(display_name):
@@ -214,8 +211,7 @@ def adjust_system_time(display_name):
                 message = f"Error:\n{str(e)}"
                 lcd.message = message
             time.sleep(1)  # Show the set message
-            clear_and_return_to_menu()
-            break
+            return
         time.sleep(0.2)  # Reduce refresh rate to minimize jitter
 
 def irrigation_menu():
@@ -238,14 +234,13 @@ def irrigation_menu():
         elif lcd.select_button:
             debounce(lambda: lcd.select_button)
             if options[index] == 'Soil Moist Thresh':
-                adjust_parameter('dryValue', 10, 0, 1000, 'Soil Moisture Threshold')
+                adjust_parameter('dryValue', 10, 0, 1000, 'Soil Moisture Threshold (MM)')
             elif options[index] == 'Water Vol':
                 adjust_parameter('waterVol', 10, 0, 1000, 'Water Volume')
             elif options[index] == 'Watering Time':
                 adjust_time_parameter('checkTime', 'Watering Time')
             elif options[index] == 'Back':
-                clear_and_return_to_menu()
-                break
+                return
             display_menu(options, index)
             time.sleep(0.5)  # Pause before returning to menu
 
@@ -283,8 +278,7 @@ def manual_control_menu():
             elif options[index] == 'Fan Off Now':
                 control_fan(False)
             elif options[index] == 'Back':
-                clear_and_return_to_menu()
-                break
+                return
             display_menu(options, index)
             time.sleep(0.5)  # Pause before returning to menu
 
@@ -451,9 +445,7 @@ def main_menu():
             elif options[index] == 'Manual Control':
                 manual_control_menu()
             elif options[index] == 'Back':
-                lcd.clear()
-                return_to_initial_screen()  # Call to return to the initial screen
-                break  # Exit the loop and return control
+                return  # Return to the previous level
             display_menu(options, index)
             time.sleep(0.5)  # Pause before returning to menu
 
