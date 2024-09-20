@@ -102,29 +102,25 @@ def adjust_parameter(parameter_name, step, min_val, max_val, display_name):
     """General function to adjust a numerical parameter."""
     cfg = config.read_config()
     value = int(cfg['PLANTCFG'][parameter_name])
+    lcd.clear()
+    lcd.message = f"{display_name}:\n{value}"
     while True:
-        lcd.clear()
-        message = f"{display_name}:\n{value}"
-        lcd.message = message
-        update = False
         if lcd.up_button:
             debounce(lambda: lcd.up_button)
             value = min(value + step, max_val)
-            update = True
+            lcd.clear()
+            lcd.message = f"{display_name}:\n{value}"
         elif lcd.down_button:
             debounce(lambda: lcd.down_button)
             value = max(value - step, min_val)
-            update = True
-        if update:
-            message = f"{display_name}:\n{value}"
-            lcd.message = message
+            lcd.clear()
+            lcd.message = f"{display_name}:\n{value}"
         elif lcd.select_button:
             debounce(lambda: lcd.select_button)
-            config.update_config('PLANTCFG', parameter_name, value)
+            config.update_config('PLANTCFG', parameter_name, str(value))
             apply_settings()  # Apply the parameter change
             lcd.clear()
-            message = f"Set to:\n{value}"
-            lcd.message = message
+            lcd.message = f"Set to:\n{value}"
             time.sleep(1)  # Show the set message
             return
         time.sleep(0.2)  # Reduce refresh rate to minimize jitter
@@ -134,37 +130,35 @@ def adjust_time_parameter(parameter_name, display_name):
     cfg = config.read_config()
     value = [int(x) for x in cfg['PLANTCFG'][parameter_name].split(",")]
     hours, minutes = value
+    lcd.clear()
+    lcd.message = f"{display_name}:\n{hours:02d}:{minutes:02d}"
     while True:
-        lcd.clear()
-        message = f"{display_name}:\n{hours:02d}:{minutes:02d}"
-        lcd.message = message
-        update = False
         if lcd.up_button:
             debounce(lambda: lcd.up_button)
             hours = (hours + 1) % 24
-            update = True
+            lcd.clear()
+            lcd.message = f"{display_name}:\n{hours:02d}:{minutes:02d}"
         elif lcd.down_button:
             debounce(lambda: lcd.down_button)
             hours = (hours - 1) % 24
-            update = True
+            lcd.clear()
+            lcd.message = f"{display_name}:\n{hours:02d}:{minutes:02d}"
         elif lcd.right_button:
             debounce(lambda: lcd.right_button)
             minutes = (minutes + 1) % 60
-            update = True
+            lcd.clear()
+            lcd.message = f"{display_name}:\n{hours:02d}:{minutes:02d}"
         elif lcd.left_button:
             debounce(lambda: lcd.left_button)
             minutes = (minutes - 1) % 60
-            update = True
-        if update:
-            message = f"{display_name}:\n{hours:02d}:{minutes:02d}"
-            lcd.message = message
+            lcd.clear()
+            lcd.message = f"{display_name}:\n{hours:02d}:{minutes:02d}"
         elif lcd.select_button:
             debounce(lambda: lcd.select_button)
             config.update_config('PLANTCFG', parameter_name, f"{hours},{minutes}")
             apply_settings()  # Apply the time parameter change
             lcd.clear()
-            message = f"Set to:\n{hours:02d}:{minutes:02d}"
-            lcd.message = message
+            lcd.message = f"Set to:\n{hours:02d}:{minutes:02d}"
             time.sleep(1)  # Show the set message
             return
         time.sleep(0.2)  # Reduce refresh rate to minimize jitter
@@ -173,30 +167,29 @@ def adjust_system_time(display_name):
     """Function to adjust the system time (HH:MM)."""
     now = datetime.now()
     hours, minutes = now.hour, now.minute
+    lcd.clear()
+    lcd.message = f"{display_name}:\n{hours:02d}:{minutes:02d}"
     while True:
-        lcd.clear()
-        message = f"{display_name}:\n{hours:02d}:{minutes:02d}"
-        lcd.message = message
-        update = False
         if lcd.up_button:
             debounce(lambda: lcd.up_button)
             hours = (hours + 1) % 24
-            update = True
+            lcd.clear()
+            lcd.message = f"{display_name}:\n{hours:02d}:{minutes:02d}"
         elif lcd.down_button:
             debounce(lambda: lcd.down_button)
             hours = (hours - 1) % 24
-            update = True
+            lcd.clear()
+            lcd.message = f"{display_name}:\n{hours:02d}:{minutes:02d}"
         elif lcd.right_button:
             debounce(lambda: lcd.right_button)
             minutes = (minutes + 1) % 60
-            update = True
+            lcd.clear()
+            lcd.message = f"{display_name}:\n{hours:02d}:{minutes:02d}"
         elif lcd.left_button:
             debounce(lambda: lcd.left_button)
             minutes = (minutes - 1) % 60
-            update = True
-        if update:
-            message = f"{display_name}:\n{hours:02d}:{minutes:02d}"
-            lcd.message = message
+            lcd.clear()
+            lcd.message = f"{display_name}:\n{hours:02d}:{minutes:02d}"
         elif lcd.select_button:
             debounce(lambda: lcd.select_button)
             new_time = f"{hours:02d}:{minutes:02d}:00"
@@ -204,12 +197,10 @@ def adjust_system_time(display_name):
                 subprocess.run(["sudo", "date", f"--set={new_time}"], check=True)
                 apply_settings()  # Apply the system time change
                 lcd.clear()
-                message = f"Time Set to:\n{new_time}"
-                lcd.message = message
+                lcd.message = f"Time Set to:\n{new_time}"
             except Exception as e:
                 lcd.clear()
-                message = f"Error:\n{str(e)}"
-                lcd.message = message
+                lcd.message = f"Error:\n{str(e)}"
             time.sleep(1)  # Show the set message
             return
         time.sleep(0.2)  # Reduce refresh rate to minimize jitter
