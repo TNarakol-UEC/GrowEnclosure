@@ -228,7 +228,7 @@ def irrigation_menu():
             if options[index] == 'Soil Moist Thresh':
                 adjust_soil_moisture_threshold()
             elif options[index] == 'Water Vol':
-                adjust_parameter('waterVol', 0.5, 0, 50, 'Water Volume (L)')
+                adjust_parameter('waterVol', 0.5, 0, 50, 'Water Volume (mm)')
             elif options[index] == 'Watering Time':
                 adjust_time_parameter('checkTime', 'Watering Time')
             elif options[index] == 'Back':
