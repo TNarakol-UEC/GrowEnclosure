@@ -15,7 +15,7 @@ import threading
 #Submodules import, these require files to be present in local dir
 from BoardMOSFETReset import grobotboot
 from sensorfeed import feedread
-from watercontrol import autowater
+from watercontrol import autorain
 from fancontrol import fanon
 from lightcontrol import growlighton, growlightoff
 from picamera import picam_capture
@@ -149,7 +149,7 @@ def EverySETTIME(): # This runs every settime read from grobot_cfg
         settings = get_plant_settings()
         set_lcd_color("in_progress")  # Set LCD color to blue when in progress
 
-        # This should read value from sensor and autowater if Soil moisture too low
+        # This should read value from sensor and autorain if Soil moisture too low
         # Read value from sensor
         ReadVal = feedread() # T RH SRH in order
         if isinstance(ReadVal, tuple) == True: # Check if there is an actual value from feedread
@@ -163,7 +163,7 @@ def EverySETTIME(): # This runs every settime read from grobot_cfg
 
         # Now water plant if soil too dry
         if ReadVal[2] <= settings['dryValue']:
-            wtrstatus = autowater(settings['waterVol'])
+            wtrstatus = autorain(settings['waterVol'])
             if wtrstatus == 1:
                 pass
             elif wtrstatus == 2:        # Low water level
