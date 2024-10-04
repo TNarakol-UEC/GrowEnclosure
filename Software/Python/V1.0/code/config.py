@@ -11,6 +11,7 @@
 import configparser
 
 config = configparser.ConfigParser()
+config.optionxform = str #Force keep case-sensititvity in config file
 
 def read_config():
     config.read("grobot_cfg.ini")
