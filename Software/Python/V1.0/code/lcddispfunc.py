@@ -404,7 +404,7 @@ def return_to_initial_screen():
     """Function to display the initial LCD screen with time and prompt."""
     while True:
         current_time = datetime.now().strftime("%H:%M:%S")
-        lcd.message = f"{current_time}\nPress Select to start"
+        lcd.message = f"{current_time}\nPress Select"
         if lcd.select_button:
             debounce(lambda: lcd.select_button)
             main_menu()  # Return to the main menu when "Select" is pressed
