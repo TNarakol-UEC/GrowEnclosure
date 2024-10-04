@@ -101,7 +101,7 @@ def edit_settings_menu():
 def adjust_parameter(parameter_name, step, min_val, max_val, display_name):
     """General function to adjust a numerical parameter."""
     cfg = config.read_config()
-    value = float(cfg['PLANTCFG'][parameter_name])  # Read as float to accommodate 0.5 increments
+    value = float(cfg['PLANTCFG'][parameter_name])  # Read as float to accommodate 0.x increments
     lcd.clear()
     lcd.message = f"{display_name}:\n{value}"
     while True:
@@ -228,7 +228,7 @@ def irrigation_menu():
             if options[index] == 'Soil Moist Thresh':
                 adjust_soil_moisture_threshold()
             elif options[index] == 'Water Vol':
-                adjust_parameter('waterVol', 0.5, 0, 50, 'Water Volume (mm)')
+                adjust_parameter('waterVol', 0.1, 0, 50, 'Water mm of Rain')
             elif options[index] == 'Watering Time':
                 adjust_time_parameter('checkTime', 'Watering Time')
             elif options[index] == 'Back':
@@ -492,7 +492,7 @@ def lcd_menu_thread():
     lcd.clear()
     while True:
         current_time = datetime.now().strftime("%H:%M:%S")
-        lcd.message = f"{current_time}\nPress Select to start"
+        lcd.message = f"{current_time}\nPress Select"
         if lcd.select_button:
             debounce(lambda: lcd.select_button)
             main_menu()
