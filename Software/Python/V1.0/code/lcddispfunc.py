@@ -4,7 +4,7 @@ from adafruit_character_lcd.character_lcd_rgb_i2c import Character_LCD_RGB_I2C
 import threading
 from lightcontrol import growlighton, growlightoff
 from fancontrol import fanon, fanoff
-from watercontrol import autowater, stopwater
+from watercontrol import autorain, stopwater
 from picamera import picam_capture
 import config
 from timecheck import is_time_between
@@ -102,29 +102,25 @@ def adjust_parameter(parameter_name, step, min_val, max_val, display_name):
     """General function to adjust a numerical parameter."""
     cfg = config.read_config()
     value = int(cfg['PLANTCFG'][parameter_name])
+    lcd.clear()
+    lcd.message = f"{display_name}:\n{value}"
     while True:
-        lcd.clear()
-        message = f"{display_name}:\n{value}"
-        lcd.message = message
-        update = False
         if lcd.up_button:
             debounce(lambda: lcd.up_button)
             value = min(value + step, max_val)
-            update = True
+            lcd.clear()
+            lcd.message = f"{display_name}:\n{value}"
         elif lcd.down_button:
             debounce(lambda: lcd.down_button)
             value = max(value - step, min_val)
-            update = True
-        if update:
-            message = f"{display_name}:\n{value}"
-            lcd.message = message
+            lcd.clear()
+            lcd.message = f"{display_name}:\n{value}"
         elif lcd.select_button:
             debounce(lambda: lcd.select_button)
-            config.update_config('PLANTCFG', parameter_name, value)
+            config.update_config('PLANTCFG', parameter_name, str(value))
             apply_settings()  # Apply the parameter change
             lcd.clear()
-            message = f"Set to:\n{value}"
-            lcd.message = message
+            lcd.message = f"Set to:\n{value}"
             time.sleep(1)  # Show the set message
             return
         time.sleep(0.2)  # Reduce refresh rate to minimize jitter
@@ -134,37 +130,35 @@ def adjust_time_parameter(parameter_name, display_name):
     cfg = config.read_config()
     value = [int(x) for x in cfg['PLANTCFG'][parameter_name].split(",")]
     hours, minutes = value
+    lcd.clear()
+    lcd.message = f"{display_name}:\n{hours:02d}:{minutes:02d}"
     while True:
-        lcd.clear()
-        message = f"{display_name}:\n{hours:02d}:{minutes:02d}"
-        lcd.message = message
-        update = False
         if lcd.up_button:
             debounce(lambda: lcd.up_button)
             hours = (hours + 1) % 24
-            update = True
+            lcd.clear()
+            lcd.message = f"{display_name}:\n{hours:02d}:{minutes:02d}"
         elif lcd.down_button:
             debounce(lambda: lcd.down_button)
             hours = (hours - 1) % 24
-            update = True
+            lcd.clear()
+            lcd.message = f"{display_name}:\n{hours:02d}:{minutes:02d}"
         elif lcd.right_button:
             debounce(lambda: lcd.right_button)
             minutes = (minutes + 1) % 60
-            update = True
+            lcd.clear()
+            lcd.message = f"{display_name}:\n{hours:02d}:{minutes:02d}"
         elif lcd.left_button:
             debounce(lambda: lcd.left_button)
             minutes = (minutes - 1) % 60
-            update = True
-        if update:
-            message = f"{display_name}:\n{hours:02d}:{minutes:02d}"
-            lcd.message = message
+            lcd.clear()
+            lcd.message = f"{display_name}:\n{hours:02d}:{minutes:02d}"
         elif lcd.select_button:
             debounce(lambda: lcd.select_button)
             config.update_config('PLANTCFG', parameter_name, f"{hours},{minutes}")
             apply_settings()  # Apply the time parameter change
             lcd.clear()
-            message = f"Set to:\n{hours:02d}:{minutes:02d}"
-            lcd.message = message
+            lcd.message = f"Set to:\n{hours:02d}:{minutes:02d}"
             time.sleep(1)  # Show the set message
             return
         time.sleep(0.2)  # Reduce refresh rate to minimize jitter
@@ -173,30 +167,29 @@ def adjust_system_time(display_name):
     """Function to adjust the system time (HH:MM)."""
     now = datetime.now()
     hours, minutes = now.hour, now.minute
+    lcd.clear()
+    lcd.message = f"{display_name}:\n{hours:02d}:{minutes:02d}"
     while True:
-        lcd.clear()
-        message = f"{display_name}:\n{hours:02d}:{minutes:02d}"
-        lcd.message = message
-        update = False
         if lcd.up_button:
             debounce(lambda: lcd.up_button)
             hours = (hours + 1) % 24
-            update = True
+            lcd.clear()
+            lcd.message = f"{display_name}:\n{hours:02d}:{minutes:02d}"
         elif lcd.down_button:
             debounce(lambda: lcd.down_button)
             hours = (hours - 1) % 24
-            update = True
+            lcd.clear()
+            lcd.message = f"{display_name}:\n{hours:02d}:{minutes:02d}"
         elif lcd.right_button:
             debounce(lambda: lcd.right_button)
             minutes = (minutes + 1) % 60
-            update = True
+            lcd.clear()
+            lcd.message = f"{display_name}:\n{hours:02d}:{minutes:02d}"
         elif lcd.left_button:
             debounce(lambda: lcd.left_button)
             minutes = (minutes - 1) % 60
-            update = True
-        if update:
-            message = f"{display_name}:\n{hours:02d}:{minutes:02d}"
-            lcd.message = message
+            lcd.clear()
+            lcd.message = f"{display_name}:\n{hours:02d}:{minutes:02d}"
         elif lcd.select_button:
             debounce(lambda: lcd.select_button)
             new_time = f"{hours:02d}:{minutes:02d}:00"
@@ -204,12 +197,10 @@ def adjust_system_time(display_name):
                 subprocess.run(["sudo", "date", f"--set={new_time}"], check=True)
                 apply_settings()  # Apply the system time change
                 lcd.clear()
-                message = f"Time Set to:\n{new_time}"
-                lcd.message = message
+                lcd.message = f"Time Set to:\n{new_time}"
             except Exception as e:
                 lcd.clear()
-                message = f"Error:\n{str(e)}"
-                lcd.message = message
+                lcd.message = f"Error:\n{str(e)}"
             time.sleep(1)  # Show the set message
             return
         time.sleep(0.2)  # Reduce refresh rate to minimize jitter
@@ -234,7 +225,7 @@ def irrigation_menu():
         elif lcd.select_button:
             debounce(lambda: lcd.select_button)
             if options[index] == 'Soil Moist Thresh':
-                adjust_parameter('dryValue', 10, 0, 1000, 'Soil Moisture Threshold (MM)')
+                adjust_soil_moisture_threshold()
             elif options[index] == 'Water Vol':
                 adjust_parameter('waterVol', 10, 0, 1000, 'Water Volume')
             elif options[index] == 'Watering Time':
@@ -243,6 +234,54 @@ def irrigation_menu():
                 return
             display_menu(options, index)
             time.sleep(0.5)  # Pause before returning to menu
+
+def adjust_soil_moisture_threshold():
+    """Function to adjust soil moisture threshold as a percentage."""
+    cfg = config.read_config()
+    value = int(cfg['PLANTCFG']['dryValue'])
+    percentage = int((value / 1000) * 100)  # Convert to percentage
+    while True:
+        lcd.clear()
+        message = f"Soil Moisture %:\n{percentage}%"
+        lcd.message = message
+        update = False
+        if lcd.up_button:
+            start_time = time.monotonic()
+            while debounce(lambda: lcd.up_button):
+                if time.monotonic() - start_time > 0.5:  # Hold for 0.5 seconds
+                    percentage = min(percentage + 10, 100)
+                else:
+                    percentage = min(percentage + 1, 100)
+                update = True
+                message = f"Soil Moisture %:\n{percentage}%"
+                lcd.message = message
+                time.sleep(0.1)
+        elif lcd.down_button:
+            start_time = time.monotonic()
+            while debounce(lambda: lcd.down_button):
+                if time.monotonic() - start_time > 0.5:  # Hold for 0.5 seconds
+                    percentage = max(percentage - 10, 0)
+                else:
+                    percentage = max(percentage - 1, 0)
+                update = True
+                message = f"Soil Moisture %:\n{percentage}%"
+                lcd.message = message
+                time.sleep(0.1)
+        if update:
+            message = f"Soil Moisture %:\n{percentage}%"
+            lcd.message = message
+        elif lcd.select_button:
+            debounce(lambda: lcd.select_button)
+            value = int((percentage / 100) * 1000)  # Convert back to 0-1000 range
+            config.update_config('PLANTCFG', 'dryValue', str(value))
+            apply_settings()  # Apply the parameter change
+            lcd.clear()
+            message = f"Set to:\n{percentage}%"
+            lcd.message = message
+            time.sleep(1)  # Show the set message
+            clear_and_return_to_menu()
+            break
+        time.sleep(0.2)  # Reduce refresh rate to minimize jitter
 
 def manual_control_menu():
     """Function to handle manual controls."""
@@ -339,7 +378,7 @@ def control_watering(start):
         settings = config.get_plant_settings()  # Get the latest settings
         if start:
             print("Starting watering...")  # Debugging line
-            result = autowater(settings['waterVol'])
+            result = autorain(settings['waterVol'])
             manual_override["watering"] = True
             lcd.clear()
             lcd.message = "Watering" if result == 1 else "Watering Failed"
@@ -365,7 +404,7 @@ def return_to_initial_screen():
     """Function to display the initial LCD screen with time and prompt."""
     while True:
         current_time = datetime.now().strftime("%H:%M:%S")
-        lcd.message = f"{current_time}\nPress Select to start"
+        lcd.message = f"{current_time}\nPress Select"
         if lcd.select_button:
             debounce(lambda: lcd.select_button)
             main_menu()  # Return to the main menu when "Select" is pressed
