@@ -4,7 +4,7 @@ from adafruit_character_lcd.character_lcd_rgb_i2c import Character_LCD_RGB_I2C
 import threading
 from lightcontrol import growlighton, growlightoff
 from fancontrol import fanon, fanoff
-from watercontrol import autowater, stopwater
+from watercontrol import autorain, stopwater
 from picamera import picam_capture
 import config
 from timecheck import is_time_between
@@ -378,7 +378,7 @@ def control_watering(start):
         settings = config.get_plant_settings()  # Get the latest settings
         if start:
             print("Starting watering...")  # Debugging line
-            result = autowater(settings['waterVol'])
+            result = autorain(settings['waterVol'])
             manual_override["watering"] = True
             lcd.clear()
             lcd.message = "Watering" if result == 1 else "Watering Failed"
