@@ -3,7 +3,7 @@
 #Growth Enclosure 
 #
 #This function setup digital IO pins, their directions and sensor objects
-#V1.0-RELEASE
+#V1.0-DEV
 #
 #This functions execute without input and return s1 thru s6, ths, and sms objects on success
 #returns 0 on failure

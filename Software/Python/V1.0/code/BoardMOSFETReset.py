@@ -3,7 +3,7 @@
 #Growth Enclosure 
 #
 #MOSTFET close python code
-#V1.0-RELEASE
+#V1.0-DEV
 #
 #This code always run first by main. Force close all mosfets gates from unknown floats.
 #

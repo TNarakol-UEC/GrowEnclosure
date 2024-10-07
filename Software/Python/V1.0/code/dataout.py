@@ -3,7 +3,7 @@
 #Growth Enclosure 
 #
 #This function write data to output excel file
-#V1.0-RELEASE
+#V1.0-DEV
 #
 #This functions execute with inputs Temp, %RH, and soil RH and writes them along with time to an excel file
 #returns 0 on failure, 1 on success, 2 on secondary fallback storage used

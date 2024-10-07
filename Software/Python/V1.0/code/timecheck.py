@@ -3,7 +3,7 @@
 #Growth Enclosure 
 #
 #This function check if current time is between set time
-#V1.0-RELEASE
+#V1.0-DEV
 #
 #This functions execute with inputs start and end time (and an optional current time). It can also handle time that crosses midnight
 #returns True on current time in range, False on out of range
