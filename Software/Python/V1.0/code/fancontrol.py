@@ -1,13 +1,14 @@
-# Ulnooweg Education Centre - ulnoowegeducation.ca
-# Growth enclosure
-# All rights reserved
+#Ulnooweg Education Centre - All rights reserved
+#Contact: ulnoowegeducation.ca
+#Growth Enclosure 
 #
-#V1.0-RELEASE
 # This function controls the right fan
+#V1.0-RELEASE
+#
 # This functions execute with desired time to turn fan on
 # returns 0 on failure, 1 on success
 #
-##############################################
+########################################
 # MODULE IMPORTS
 import time  # need time for sleep function
 from diopinsetup import diopinset

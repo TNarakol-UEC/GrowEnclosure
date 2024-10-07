@@ -1,14 +1,15 @@
-#Ulnooweg Education Centre - ulnoowegeducation.ca
-#Growth enclosure
-#All rights reserved
+#Ulnooweg Education Centre - All rights reserved
+#Contact: ulnoowegeducation.ca
+#Growth Enclosure 
 #
-#V1.0-RELEASE
 #This function takes picture using pi camera
+#V1.0-RELEASE
+#
 #This functions execute without input and export timestamped image to external drive, if not fallback to code/pictures
 #returns 0 on failure, 1 on success, 2 onfallback
 #code borrowed from cameracode.py in V0.7
 #
-##############################################
+########################################
 #MODULE IMPORTS
 import subprocess
 import datetime

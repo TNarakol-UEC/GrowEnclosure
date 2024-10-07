@@ -1,13 +1,14 @@
-#Ulnooweg Education Centre - ulnoowegeducation.ca
-#Growth enclosure
-#All rights reserved
+#Ulnooweg Education Centre - All rights reserved
+#Contact: ulnoowegeducation.ca
+#Growth Enclosure 
 #
-#V1.0-RELEASE
 #These functions controls the light
+#V1.0-RELEASE
+#
 #These functions take no arguments
 #returns 0 on failure, 1 on success
 #
-##############################################
+########################################
 #MODULE IMPORTS
 from diopinsetup import diopinset
 

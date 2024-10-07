@@ -1,9 +1,12 @@
-#Growth Enclosure MOSTFET close python code
 #Ulnooweg Education Centre - All rights reserved
 #Contact: ulnoowegeducation.ca
-
+#Growth Enclosure 
+#
+#MOSTFET close python code
 #V1.0-RELEASE
+#
 #This code always run first by main. Force close all mosfets gates from unknown floats.
+#
 ########################################
 
 #import important library

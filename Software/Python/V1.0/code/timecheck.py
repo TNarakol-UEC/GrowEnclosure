@@ -1,16 +1,17 @@
-#Ulnooweg Education Centre - ulnoowegeducation.ca
-#Growth enclosure
-#All rights reserved
+#Ulnooweg Education Centre - All rights reserved
+#Contact: ulnoowegeducation.ca
+#Growth Enclosure 
 #
-#V1.0-RELEASE
 #This function check if current time is between set time
+#V1.0-RELEASE
+#
 #This functions execute with inputs start and end time (and an optional current time). It can also handle time that crosses midnight
 #returns True on current time in range, False on out of range
 #This code is posted by stackoverflow user https://stackoverflow.com/users/48837/joe-holloway
 #https://stackoverflow.com/questions/10048249/how-do-i-determine-if-current-time-is-within-a-specified-range-using-pythons-da
 #Note: The time input must be converted from tuple using time(hh,mm) first
 #
-##############################################
+########################################
 
 #Module Imports
 from datetime import datetime, time

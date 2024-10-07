@@ -1,14 +1,14 @@
-# sensorfeed.py
-# Ulnooweg Education Centre - ulnoowegeducation.ca
-# Growth enclosure
-# All rights reserved
+#Ulnooweg Education Centre - All rights reserved
+#Contact: ulnoowegeducation.ca
+#Growth Enclosure 
 #
-#V1.0-RELEASE
 # This function read sensor feeds
+#V1.0-RELEASE
+#
 # This function executes without input and returns Temp, %RH, and soilRH to main in raw form
 # returns single number 0 on failure
 #
-##############################################
+########################################
 # MODULE IMPORTS
 from diopinsetup import diopinset
 

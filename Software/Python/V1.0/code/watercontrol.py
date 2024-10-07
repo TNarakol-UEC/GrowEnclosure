@@ -1,13 +1,14 @@
-# Ulnooweg Education Centre - ulnoowegeducation.ca
-# Growth enclosure
-# All rights reserved
+#Ulnooweg Education Centre - All rights reserved
+#Contact: ulnoowegeducation.ca
+#Growth Enclosure 
 #
-#V1.0-RELEASE
 # This function controls watering
+#V1.0-RELEASE
+#
 # This functions execute with desired volume if using autowater or desired mm of rain if using autorain
 # returns 0 on failure, 1 on success, 2 on low water
 #
-##############################################
+########################################
 # MODULE IMPORTS
 import time  # need time for sleep function
 from diopinsetup import diopinset

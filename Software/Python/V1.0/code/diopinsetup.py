@@ -1,13 +1,14 @@
-#Ulnooweg Education Centre - ulnoowegeducation.ca
-#Growth enclosure
-#All rights reserved
+#Ulnooweg Education Centre - All rights reserved
+#Contact: ulnoowegeducation.ca
+#Growth Enclosure 
 #
-#V1.0-RELEASE
 #This function setup digital IO pins, their directions and sensor objects
+#V1.0-RELEASE
+#
 #This functions execute without input and return s1 thru s6, ths, and sms objects on success
 #returns 0 on failure
 #
-##############################################
+########################################
 #MODULE IMPORTS
 #BLINKA
 import board

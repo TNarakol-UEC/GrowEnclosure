@@ -1,13 +1,14 @@
-#Ulnooweg Education Centre - ulnoowegeducation.ca
-#Growth enclosure
-#All rights reserved
+#Ulnooweg Education Centre - All rights reserved
+#Contact: ulnoowegeducation.ca
+#Growth Enclosure 
 #
-#V1.0-RELEASE
 #This function is the main function
+#V1.0-RELEASE
+#
 #This functions should call other submodules/functions and execute them as needed/scheduled
 #This functions always run under grobot service
 #
-##############################################
+########################################
 #MODULE IMPORTS
 from datetime import time, datetime
 import time as time2 #We already import time from datetime so time library is imported as time2

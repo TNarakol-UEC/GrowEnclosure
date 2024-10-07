@@ -1,10 +1,11 @@
-# Ulnooweg Education Centre - ulnoowegeducation.ca
-# Growth enclosure
-# All rights reserved
-#
-#V1.0-RELEASE
+#Ulnooweg Education Centre - All rights reserved
+#Contact: ulnoowegeducation.ca
+#Growth Enclosure 
 #
 #LCD Module control code
+#V1.0-RELEASE
+#
+########################################
 
 import board
 import time
