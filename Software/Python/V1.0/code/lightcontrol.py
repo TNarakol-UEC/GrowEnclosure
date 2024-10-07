@@ -1,7 +1,8 @@
 #Ulnooweg Education Centre - ulnoowegeducation.ca
-#Growth enclosure V1.0
+#Growth enclosure
 #All rights reserved
 #
+#V1.0-RELEASE
 #These functions controls the light
 #These functions take no arguments
 #returns 0 on failure, 1 on success

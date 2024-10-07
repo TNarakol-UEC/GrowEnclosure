@@ -2,7 +2,7 @@
 #Ulnooweg Education Centre - All rights reserved
 #Contact: ulnoowegeducation.ca
 
-#V1.0
+#V1.0-RELEASE
 #This code defines several important function to read config files including
 #get_plant _settings() which read config and return plant settings as a tuple of data
 ########################################

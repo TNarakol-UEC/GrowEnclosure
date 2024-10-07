@@ -1,3 +1,11 @@
+# Ulnooweg Education Centre - ulnoowegeducation.ca
+# Growth enclosure
+# All rights reserved
+#
+#V1.0-RELEASE
+#
+#LCD Module control code
+
 import board
 import time
 from adafruit_character_lcd.character_lcd_rgb_i2c import Character_LCD_RGB_I2C

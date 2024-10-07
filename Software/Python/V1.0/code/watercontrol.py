@@ -1,7 +1,8 @@
 # Ulnooweg Education Centre - ulnoowegeducation.ca
-# Growth enclosure V1.0
+# Growth enclosure
 # All rights reserved
 #
+#V1.0-RELEASE
 # This function controls watering
 # This functions execute with desired volume if using autowater or desired mm of rain if using autorain
 # returns 0 on failure, 1 on success, 2 on low water

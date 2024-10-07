@@ -1,8 +1,9 @@
 # sensorfeed.py
 # Ulnooweg Education Centre - ulnoowegeducation.ca
-# Growth enclosure V1.0
+# Growth enclosure
 # All rights reserved
 #
+#V1.0-RELEASE
 # This function read sensor feeds
 # This function executes without input and returns Temp, %RH, and soilRH to main in raw form
 # returns single number 0 on failure

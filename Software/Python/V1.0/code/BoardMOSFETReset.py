@@ -2,7 +2,7 @@
 #Ulnooweg Education Centre - All rights reserved
 #Contact: ulnoowegeducation.ca
 
-#V1.0
+#V1.0-RELEASE
 #This code always run first by main. Force close all mosfets gates from unknown floats.
 ########################################
 

@@ -1,7 +1,8 @@
 #Ulnooweg Education Centre - ulnoowegeducation.ca
-#Growth enclosure V1.0
+#Growth enclosure
 #All rights reserved
 #
+#V1.0-RELEASE
 #This function setup digital IO pins, their directions and sensor objects
 #This functions execute without input and return s1 thru s6, ths, and sms objects on success
 #returns 0 on failure

@@ -1,7 +1,8 @@
 #Ulnooweg Education Centre - ulnoowegeducation.ca
-#Growth enclosure V1.0
+#Growth enclosure
 #All rights reserved
 #
+#V1.0-RELEASE
 #This function takes picture using pi camera
 #This functions execute without input and export timestamped image to external drive, if not fallback to code/pictures
 #returns 0 on failure, 1 on success, 2 onfallback

@@ -1,7 +1,8 @@
 #Ulnooweg Education Centre - ulnoowegeducation.ca
-#Growth enclosure V1.0
+#Growth enclosure
 #All rights reserved
 #
+#V1.0-RELEASE
 #This function check if current time is between set time
 #This functions execute with inputs start and end time (and an optional current time). It can also handle time that crosses midnight
 #returns True on current time in range, False on out of range
