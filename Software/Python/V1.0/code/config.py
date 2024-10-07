@@ -26,7 +26,7 @@ def get_plant_settings(): #Define get_plant_settings which read config file and 
         'dryValue': int(config['PLANTCFG']['dryValue']),
         'maxTemp': int(config['PLANTCFG']['maxTemp']),
         'maxHumid': int(config['PLANTCFG']['maxHumid']),
-        'waterVol': float(config['PLANTCFG']['waterVol']),
+        'waterVol': int(config['PLANTCFG']['waterVol']),
         'fanTime': int(config['PLANTCFG']['fanTime'])
     }
     return settings #return variable as a dictionary 
