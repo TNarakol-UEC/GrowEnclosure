@@ -3,7 +3,7 @@
 #Growth Enclosure 
 #
 # This function controls watering
-#V1.0-DEV
+#V1.1-DEV
 #
 # This functions execute with desired volume if using autowater or desired mm of rain if using autorain
 # returns 0 on failure, 1 on success, 2 on low water

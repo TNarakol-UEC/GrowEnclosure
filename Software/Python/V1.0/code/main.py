@@ -3,7 +3,7 @@
 #Growth Enclosure 
 #
 #This function is the main function
-#V1.0-DEV
+#V1.1-DEV
 #
 #This functions should call other submodules/functions and execute them as needed/scheduled
 #This functions always run under grobot service

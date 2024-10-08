@@ -3,7 +3,7 @@
 #Growth Enclosure 
 #
 #These functions controls the light
-#V1.0-DEV
+#V1.1-DEV
 #
 #These functions take no arguments
 #returns 0 on failure, 1 on success
