@@ -3,7 +3,7 @@
 #Growth Enclosure 
 #
 #LCD Module control code
-#V1.1-DEV
+#V1.0.1-RELEASE
 #
 ########################################
 
