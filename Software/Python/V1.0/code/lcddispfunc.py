@@ -174,7 +174,7 @@ def adjust_time_parameter(parameter_name, display_name):
         time.sleep(0.2)  # Reduce refresh rate to minimize jitter
 
 def adjust_system_time(display_name):
-    """Function to adjust the system time (HH:MM)."""
+    """Function to adjust the system time (HH:MM) and update the RTC."""
     now = datetime.now()
     hours, minutes = now.hour, now.minute
     lcd.clear()
@@ -204,7 +204,12 @@ def adjust_system_time(display_name):
             debounce(lambda: lcd.select_button)
             new_time = f"{hours:02d}:{minutes:02d}:00"
             try:
+                # Set the system time
                 subprocess.run(["sudo", "date", f"--set={new_time}"], check=True)
+                
+                # Update the RTC with the new system time
+                subprocess.run(["sudo", "hwclock", "-w"], check=True)
+                
                 apply_settings()  # Apply the system time change
                 lcd.clear()
                 lcd.message = f"Time Set to:\n{new_time}"
@@ -214,7 +219,7 @@ def adjust_system_time(display_name):
             time.sleep(1)  # Show the set message
             return
         time.sleep(0.2)  # Reduce refresh rate to minimize jitter
-
+        
 def irrigation_menu():
     """Function to navigate and edit irrigation settings."""
     options = ['Soil Moist Thresh', 'Water Vol', 'Watering Time', 'Back']
