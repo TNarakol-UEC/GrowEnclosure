@@ -254,37 +254,36 @@ def adjust_soil_moisture_threshold():
     cfg = config.read_config()
     value = int(cfg['PLANTCFG']['dryValue'])
     percentage = int((value / 1000) * 100)  # Convert to percentage
+    lcd.clear()
+    message = f"Soil Moisture %:\n{percentage}%"
+    lcd.message = message
+    last_update = time.monotonic()
+    hold_start = None
     while True:
-        lcd.clear()
-        message = f"Soil Moisture %:\n{percentage}%"
-        lcd.message = message
-        update = False
+        current_time = time.monotonic()
         if lcd.up_button:
-            start_time = time.monotonic()
-            while debounce(lambda: lcd.up_button):
-                if time.monotonic() - start_time > 0.5:  # Hold for 0.5 seconds
-                    percentage = min(percentage + 10, 100)
-                else:
-                    percentage = min(percentage + 1, 100)
-                update = True
+            if hold_start is None:
+                hold_start = current_time
+                percentage = min(percentage + 1, 100)
+            elif current_time - hold_start > 0.5:  # Hold for 0.5 seconds
+                percentage = min(percentage + 10, 100)
+            if current_time - last_update > 0.1:  # Update display every 0.1 seconds
                 message = f"Soil Moisture %:\n{percentage}%"
                 lcd.message = message
-                time.sleep(0.1)
+                last_update = current_time
         elif lcd.down_button:
-            start_time = time.monotonic()
-            while debounce(lambda: lcd.down_button):
-                if time.monotonic() - start_time > 0.5:  # Hold for 0.5 seconds
-                    percentage = max(percentage - 10, 0)
-                else:
-                    percentage = max(percentage - 1, 0)
-                update = True
+            if hold_start is None:
+                hold_start = current_time
+                percentage = max(percentage - 1, 0)
+            elif current_time - hold_start > 0.5:  # Hold for 0.5 seconds
+                percentage = max(percentage - 10, 0)
+            if current_time - last_update > 0.1:  # Update display every 0.1 seconds
                 message = f"Soil Moisture %:\n{percentage}%"
                 lcd.message = message
-                time.sleep(0.1)
-        if update:
-            message = f"Soil Moisture %:\n{percentage}%"
-            lcd.message = message
-        elif lcd.select_button:
+                last_update = current_time
+        else:
+            hold_start = None
+        if lcd.select_button:
             debounce(lambda: lcd.select_button)
             value = int((percentage / 100) * 1000)  # Convert back to 0-1000 range
             config.update_config('PLANTCFG', 'dryValue', str(value))
@@ -295,7 +294,7 @@ def adjust_soil_moisture_threshold():
             time.sleep(1)  # Show the set message
             clear_and_return_to_menu()
             break
-        time.sleep(0.2)  # Reduce refresh rate to minimize jitter
+        time.sleep(0.05)  # Reduce CPU usage
 
 def manual_control_menu():
     """Function to handle manual controls."""
@@ -315,7 +314,9 @@ def manual_control_menu():
         if update:
             display_menu(options, index)
         elif lcd.select_button:
-            debounce(lambda: lcd.select_button)
+            # Wait for button release to avoid multiple triggers
+            while lcd.select_button:
+                time.sleep(0.01)
             if options[index] == 'Take Picture Now':
                 start_picture_thread()
             elif options[index] == 'Water Now':
@@ -334,6 +335,7 @@ def manual_control_menu():
                 return
             display_menu(options, index)
             time.sleep(0.5)  # Pause before returning to menu
+        time.sleep(0.05)  # Small delay to reduce CPU usage
 
 def start_fan_thread():
     """Start the fan in a separate thread."""
