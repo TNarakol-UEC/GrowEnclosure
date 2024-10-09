@@ -275,7 +275,7 @@ def adjust_soil_moisture_threshold():
             if hold_start is None:
                 hold_start = current_time
                 percentage = max(percentage - 1, 0)
-            elif current_time - hold_start > 0.5:  # Hhold for 0.5 seconds
+            elif current_time - hold_start > 0.5:  # Hold for 0.5 seconds
                 percentage = max(percentage - 10, 0)
             if current_time - last_update > 0.1:  # Update display every 0.1 seconds
                 message = f"Soil Moisture %:\n{percentage}%"
