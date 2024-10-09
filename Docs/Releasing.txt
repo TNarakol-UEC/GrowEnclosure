@@ -1,0 +1,7 @@
+To create a release
+
+1. Ensure appropriate approval are granted
+2. Merge the development branch into main
+3. Create a release based on main, ensuring that the release also contains an additional zip file "Grobot-Software.zip"
+   containing the folder "Grobot-Software" with all required code files, the folder "systemd_bootfile" and its contents,
+   Readme.txt from this Docs folder.

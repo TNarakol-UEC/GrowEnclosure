@@ -3,7 +3,7 @@
 #Growth Enclosure 
 #
 #This function takes picture using pi camera
-#V1.1-DEV
+#V1.0.2
 #
 #This functions execute without input and export timestamped image to external drive, if not fallback to code/pictures
 #returns 0 on failure, 1 on success, 2 onfallback
