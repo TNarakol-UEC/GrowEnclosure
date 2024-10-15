@@ -3,7 +3,7 @@
 #Growth Enclosure 
 #
 #Config file readout code
-#V1.1
+#V1.0.3
 #
 #This code defines several important function to read config files including
 #get_plant _settings() which read config and return plant settings as a tuple of data

@@ -3,7 +3,7 @@
 #Growth Enclosure 
 #
 # This function read sensor feeds
-#V1.1
+#V1.0.3
 #
 # This function executes without input and returns Temp, %RH, and soilRH to main in raw form
 # returns single number 0 on failure

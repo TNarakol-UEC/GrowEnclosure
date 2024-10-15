@@ -3,7 +3,7 @@
 #Growth Enclosure 
 #
 # This function controls the right fan
-#V1.1
+#V1.0.3
 #
 # This functions execute with desired time to turn fan on
 # returns 0 on failure, 1 on success
