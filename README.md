@@ -22,3 +22,6 @@ the files in the appropriate /code location in the GroBot.
 Please contact [Ulnooweg Education Centre](https://ulnoowegeducation.ca/) for more details on GroBot usage manual.
 
 ## Project Structures
+
+## Contributing
+Please see the relevant [contributing information file](/CONTRIBUTING.md)
